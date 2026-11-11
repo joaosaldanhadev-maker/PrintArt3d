@@ -1,0 +1,25 @@
+{
+  "id": "com.printart3d.calculator",
+  "name": "PrintArt3D - Calculadora de Custos",
+  "short_name": "PrintArt3D",
+  "description": "Calculadora profissional de custos para impressão 3D",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "icons": [
+    {
+      "src": "icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
