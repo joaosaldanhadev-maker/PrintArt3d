@@ -1,169 +1,663 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+    <link rel="manifest" href="manifest.json">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PrintArt3D - Calculadora de Custos</title>
+    <title>Calculadora PrintArt3D</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background-color: #0f172a; color: #f8fafc; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .card { background-color: #1e293b; border: 1px solid #334155; }
+        .input-field { background-color: #0f172a; border: 1px solid #334155; color: #f8fafc; }
+        .input-field:focus { border-color: #3b82f6; outline: none; }
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+        @media print {
+            body { background-color: #fff !important; color: #000 !important; }
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            .card { background-color: #fff !important; border: 1px solid #ddd !important; color: #000 !important; }
+        }
+        .print-only { display: none; }
+    </style>
+</head>
     
-    <!-- Configurações de PWA e Ficheiros de Manifesto -->
-    <link rel="manifest" href="./manifest.json">
-    <meta name="theme-color" content="#0f172a">
-    <link rel="icon" type="image/png" sizes="192x192" href="./launchericon-192x192.png">
-    <link rel="apple-touch-icon" href="./launchericon-192x192.png">
+<body class="p-4 md:p-8">
 
-    <!-- Registo do Service Worker para Suporte Offline -->
+    <div class="max-w-5xl mx-auto no-print">
+        <header class="flex flex-col items-center justify-center text-center gap-3 mb-6 pb-6 border-b border-slate-700">
+            <!-- Contentor do Logótipo sem bordas e perfeitamente integrado -->
+            <div id="logoContainer" class="bg-[#0f172a] p-1 flex flex-col items-center justify-center">
+                <!-- Inserido dinamicamente via Script -->
+            </div>
+            
+            <div>
+                <h1 class="text-4xl font-extrabold tracking-tight text-white mt-1">
+                    PrintArt3D
+                </h1>
+                <p class="text-slate-400 text-sm mt-1">Calculadora Profissional de Custos para Impressão 3D</p>
+            </div>
+            <a href="https://www.instagram.com/printart.3d_/" target="_blank" class="mt-2 flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-pink-400 hover:text-pink-300 px-5 py-2 rounded-full border border-slate-700 transition font-medium text-sm">
+                <i class="fab fa-instagram text-base"></i>
+                <span>@printart.3d_</span>
+            </a>
+        </header>
+
+        <div class="flex border-b border-slate-700 mb-6 justify-center">
+            <button id="tabCalcBtn" onclick="switchTab('calc')" class="px-6 py-3 font-semibold text-blue-500 border-b-2 border-blue-500 flex items-center gap-2 transition">
+                <i class="fas fa-calculator"></i> Calculadora de Custos
+            </button>
+            <button id="tabMachinesBtn" onclick="switchTab('machines')" class="px-6 py-3 font-semibold text-slate-400 hover:text-slate-200 border-b-2 border-transparent flex items-center gap-2 transition">
+                <i class="fas fa-print"></i> Gerenciar Máquinas & Estados
+            </button>
+        </div>
+
+        <div id="tabCalc" class="space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-2 space-y-6">
+                    <div class="card p-5 rounded-xl space-y-4">
+                        <h2 class="text-lg font-bold text-slate-200 border-b border-slate-700 pb-2 flex items-center gap-2">
+                            <i class="fas fa-info-circle text-blue-400"></i> Informações da Peça
+                        </h2>
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Descrição do Projeto / Peça</label>
+                            <input type="text" id="jobName" value="" class="w-full p-2.5 rounded-lg input-field" placeholder="Ex: Action Figure, Engrenagem, Suporte">
+                        </div>
+                    </div>
+
+                    <div class="card p-5 rounded-xl space-y-4">
+                        <div class="flex justify-between items-center border-b border-slate-700 pb-2">
+                            <h2 class="text-lg font-bold text-slate-200 flex items-center gap-2">
+                                <i class="fas fa-layer-group text-blue-400"></i> Filamentos
+                            </h2>
+                            <button onclick="addFilamentRow()" class="bg-blue-600 hover:bg-blue-500 text-white text-xs px-3 py-1.5 rounded-lg flex items-center gap-1 transition">
+                                <i class="fas fa-plus"></i> Adicionar Filamento
+                            </button>
+                        </div>
+                        
+                        <div id="filamentsContainer" class="space-y-3"></div>
+                    </div>
+
+                    <div class="card p-5 rounded-xl space-y-4">
+                        <h2 class="text-lg font-bold text-slate-200 border-b border-slate-700 pb-2 flex items-center gap-2">
+                            <i class="fas fa-cogs text-blue-400"></i> Máquina & Consumo
+                        </h2>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Impressora Selecionada</label>
+                                <select id="machineSelect" onchange="calculateCost()" class="w-full p-2.5 rounded-lg input-field">
+                                </select>
+                                <div id="depreciationInfo" class="mt-2 text-xs text-blue-400 bg-blue-950/40 border border-blue-800/50 p-2.5 rounded-lg space-y-1">
+                                    <div><i class="fas fa-chart-line mr-1"></i> Depreciação por hora: <span id="depreciationRateText" class="font-bold">R$ 0,00</span></div>
+                                    <div><i class="fas fa-clock mr-1"></i> Depreciação no trabalho: <span id="depreciationTotalText" class="font-bold text-blue-300">R$ 0,00</span></div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Tempo de Impressão (HH:MM)</label>
+                                <input type="text" id="printTimeFormatted" value="" maxlength="5" oninput="formatTimeInput(this)" onchange="calculateCost()" class="w-full p-2.5 rounded-lg input-field text-center font-mono tracking-widest text-lg" placeholder="00:00">
+                                <span class="text-[10px] text-slate-400 mt-1 block">Digite livremente (ex: 0430 para 04:30)</span>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                            <div>
+                                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Estado / Tarifa de Energia</label>
+                                <select id="stateSelect" onchange="updateEnergyRate()" class="w-full p-2.5 rounded-lg input-field">
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Custo da Energia (R$/kWh)</label>
+                                <input type="number" id="energyCost" value="" step="0.01" oninput="calculateCost()" class="w-full p-2.5 rounded-lg input-field" placeholder="0.00">
+                            </div>
+                        </div>
+
+                        <div class="pt-2">
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Insumos Extras / Acabamento (R$)</label>
+                            <input type="number" id="extraCost" value="" step="0.50" oninput="calculateCost()" class="w-full p-2.5 rounded-lg input-field" placeholder="0.00">
+                        </div>
+                    </div>
+
+                    <div class="card p-5 rounded-xl space-y-4">
+                        <h2 class="text-lg font-bold text-slate-200 border-b border-slate-700 pb-2 flex items-center gap-2">
+                            <i class="fas fa-percentage text-blue-400"></i> Margens e Riscos
+                        </h2>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Margem de Falhas/Perdas (%)</label>
+                                <input type="number" id="failMargin" value="" step="1" oninput="calculateCost()" class="w-full p-2.5 rounded-lg input-field" placeholder="0">
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Margem de Lucro (%)</label>
+                                <input type="number" id="profitMargin" value="" step="5" oninput="calculateCost()" class="w-full p-2.5 rounded-lg input-field" placeholder="0">
+                            </div>
+                        </div>
+
+                        <!-- Caixa de Texto Ampla para Descrição Detalhada / Observações Longas -->
+                        <div class="pt-2">
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-blue-400 mb-1"><i class="fas fa-align-left mr-1"></i> Descrição Detalhada / Observações do Orçamento</label>
+                            <textarea id="longDescription" rows="4" oninput="calculateCost()" class="w-full p-3 rounded-lg input-field text-sm" placeholder="Escreva aqui especificações técnicas, prazos de entrega, tipo de acabamento ou observações extensas para o cliente..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-6">
+                    <div class="card p-5 rounded-xl space-y-4 border-2 border-blue-500/30 sticky top-4">
+                        <h2 class="text-lg font-bold text-slate-200 border-b border-slate-700 pb-2">Resumo Financeiro</h2>
+                        
+                        <div class="space-y-2 text-sm text-slate-300">
+                            <div class="flex justify-between">
+                                <span>Custo de Filamento:</span>
+                                <span id="summaryFilament" class="font-semibold text-slate-100">R$ 0,00</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Energia Elétrica:</span>
+                                <span id="summaryEnergy" class="font-semibold text-slate-100">R$ 0,00</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Depreciação da Máquina:</span>
+                                <span id="summaryDepreciation" class="font-semibold text-slate-100">R$ 0,00</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Insumos Extras:</span>
+                                <span id="summaryExtra" class="font-semibold text-slate-100">R$ 0,00</span>
+                            </div>
+                            <div class="flex justify-between text-amber-400 pt-1 border-t border-slate-800">
+                                <span>Risco/Falhas:</span>
+                                <span id="summaryFail" class="font-semibold">R$ 0,00</span>
+                            </div>
+                            <div class="flex justify-between text-base font-bold text-slate-100 pt-2 border-t border-slate-700">
+                                <span>Custo Total:</span>
+                                <span id="summaryTotalCost" class="text-red-400">R$ 0,00</span>
+                            </div>
+                            <div class="flex justify-between text-sm text-emerald-400">
+                                <span>Lucro Bruto:</span>
+                                <span id="summaryProfit" class="font-semibold">R$ 0,00</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-blue-950/60 border border-blue-700/50 p-4 rounded-xl text-center space-y-1">
+                            <span class="text-xs font-semibold uppercase tracking-wider text-blue-300">Preço Sugerido de Venda</span>
+                            <div id="summaryFinalPrice" class="text-3xl font-extrabold text-emerald-400">R$ 0,00</div>
+                        </div>
+
+                        <div class="pt-2">
+                            <canvas id="costChart" width="100" height="100"></canvas>
+                        </div>
+
+                        <button onclick="window.print()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2 text-base cursor-pointer">
+                            <i class="fas fa-file-invoice"></i> Gerar orçamento
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="tabMachines" class="hidden space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- GERENCIAR MÁQUINAS -->
+                <div class="space-y-6">
+                    <div class="card p-5 rounded-xl space-y-4">
+                        <h2 class="text-lg font-bold text-slate-200 border-b border-slate-700 pb-2 flex items-center gap-2">
+                            <i class="fas fa-plus-circle text-blue-400"></i> Cadastrar Máquina
+                        </h2>
+                        <form id="machineForm" onsubmit="saveMachine(event)" class="space-y-3">
+                            <div>
+                                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Nome da Impressora</label>
+                                <input type="text" id="macName" required class="w-full p-2.5 rounded-lg input-field" placeholder="Ex: Ender 3 V2, K1">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Valor da Impressora (R$)</label>
+                                <input type="number" id="macPrice" step="10" required class="w-full p-2.5 rounded-lg input-field" placeholder="2000">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Consumo Médio (Watts)</label>
+                                <input type="number" id="macWatts" step="5" required class="w-full p-2.5 rounded-lg input-field" placeholder="200">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Vida Útil (Horas)</label>
+                                <input type="number" id="macLifespan" step="100" required class="w-full p-2.5 rounded-lg input-field" placeholder="5000">
+                            </div>
+                            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 rounded-lg transition cursor-pointer">Salvar Impressora</button>
+                        </form>
+                    </div>
+                    <div class="card p-5 rounded-xl space-y-4">
+                        <h2 class="text-lg font-bold text-slate-200 border-b border-slate-700 pb-2">Impressoras Cadastradas</h2>
+                        <div id="machinesList" class="space-y-3"></div>
+                    </div>
+                </div>
+
+                <!-- GERENCIAR ESTADOS E TARIFAS -->
+                <div class="space-y-6">
+                    <div class="card p-5 rounded-xl space-y-4">
+                        <h2 class="text-lg font-bold text-slate-200 border-b border-slate-700 pb-2 flex items-center gap-2">
+                            <i class="fas fa-bolt text-yellow-400"></i> Cadastrar Tarifa por Estado
+                        </h2>
+                        <form id="stateForm" onsubmit="saveState(event)" class="space-y-3">
+                            <div>
+                                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Nome do Estado / Região</label>
+                                <input type="text" id="stName" required class="w-full p-2.5 rounded-lg input-field" placeholder="Ex: São Paulo (SP)">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Tarifa de Luz (R$/kWh)</label>
+                                <input type="number" id="stRate" step="0.01" required class="w-full p-2.5 rounded-lg input-field" placeholder="0.85">
+                            </div>
+                            <button type="submit" class="w-full bg-yellow-600 hover:bg-yellow-500 text-white font-bold py-2.5 rounded-lg transition cursor-pointer">Salvar Estado</button>
+                        </form>
+                    </div>
+                    <div class="card p-5 rounded-xl space-y-4">
+                        <h2 class="text-lg font-bold text-slate-200 border-b border-slate-700 pb-2">Estados Cadastrados</h2>
+                        <div id="statesList" class="space-y-3"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOLHA DE ORÇAMENTO -->
+    <div class="print-only max-w-2xl mx-auto p-8 bg-white text-black">
+        <div class="flex flex-col items-center justify-center border-b-2 border-black pb-6 mb-8 text-center bg-[#0f172a] p-6 rounded-2xl text-white">
+            <div id="printLogoContainer" class="mb-3"></div>
+            <h1 class="text-3xl font-black">PrintArt3D</h1>
+            <p class="text-sm font-semibold text-gray-300 mt-1">Orçamento de Impressão 3D</p>
+            <div class="flex gap-4 text-xs font-medium text-gray-300 mt-3">
+                <span>Instagram: @printart.3d_</span>
+                <span>•</span>
+                <span>Data: <span id="printDate"></span></span>
+            </div>
+        </div>
+
+        <div class="mb-6">
+            <h2 class="text-sm font-bold uppercase tracking-wider text-gray-500 mb-2">Descrição do Projeto / Peça:</h2>
+            <div id="printJobName" class="text-xl font-bold text-gray-900 border-2 border-dashed border-gray-300 p-4 rounded-xl bg-gray-50"></div>
+        </div>
+
+        <!-- Bloco da Descrição Longa Detalhada no Orçamento Impreso -->
+        <div class="mb-6" id="printLongDescriptionContainer">
+            <h2 class="text-sm font-bold uppercase tracking-wider text-gray-500 mb-2">Especificações e Observações:</h2>
+            <div id="printLongDescription" class="text-sm font-medium text-gray-800 border border-gray-300 p-4 rounded-xl bg-gray-50 whitespace-pre-line"></div>
+        </div>
+
+        <div class="mb-6">
+            <h2 class="text-sm font-bold uppercase tracking-wider text-gray-500 mb-2">Filamento(s) Utilizado(s):</h2>
+            <div id="printFilamentsList" class="text-base font-semibold text-gray-800 border border-gray-300 p-4 rounded-xl bg-gray-50 space-y-1">
+            </div>
+        </div>
+
+        <div class="border-t-2 border-b-2 border-black py-6 my-6 flex justify-between items-center bg-gray-50 px-6 rounded-xl">
+            <span class="text-base font-bold text-gray-700 uppercase tracking-wider">Valor Total do Orçamento:</span>
+            <span id="printFinalPrice" class="text-4xl font-black text-black">R$ 0,00</span>
+        </div>
+
+        <div class="text-center text-xs text-gray-500 mt-12 pt-6 border-t border-gray-200">
+            <p>Obrigado pela preferência! Para dúvidas ou novos projetos, entre em contacto através do nosso Instagram <strong>@printart.3d_</strong>.</p>
+        </div>
+    </div>
+
+    <script>
+        let machines = JSON.parse(localStorage.getItem('p3d_machines')) || [
+            { id: 1, name: "Ender 3 V2", price: 1800, watts: 200, lifespan: 4000 },
+            { id: 2, name: "Bambu Lab P1S", price: 6500, watts: 350, lifespan: 6000 }
+        ];
+
+        let states = JSON.parse(localStorage.getItem('p3d_states')) || [
+            { id: 1, name: "São Paulo (SP)", rate: 0.85 },
+            { id: 2, name: "Rio de Janeiro (RJ)", rate: 0.95 },
+            { id: 3, name: "Minas Gerais (MG)", rate: 0.90 }
+        ];
+
+        let filaments = [
+            { id: Date.now(), type: '', price: '', grams: '' }
+        ];
+
+        let chartInstance = null;
+
+        // Gestão do Logótipo (Upload apenas na primeira vez se não existir)
+        function handleLogoUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    localStorage.setItem('p3d_custom_logo', e.target.result);
+                    renderLogo();
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function renderLogo() {
+            const savedLogo = localStorage.getItem('p3d_custom_logo');
+            const container = document.getElementById('logoContainer');
+            const printContainer = document.getElementById('printLogoContainer');
+
+            if (savedLogo) {
+                container.innerHTML = `<img src="${savedLogo}" alt="Logo" class="h-28 w-auto object-contain">`;
+                printContainer.innerHTML = `<img src="${savedLogo}" class="h-28 w-auto object-contain bg-[#0f172a] p-2 rounded-xl">`;
+            } else {
+                container.innerHTML = `
+                    <div class="text-center p-4">
+                        <p class="text-xs font-semibold text-slate-300 mb-2">Carregue o seu logótipo pela primeira vez:</p>
+                        <input type="file" id="logoFileInput" class="text-xs text-slate-400 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-500 cursor-pointer" accept="image/*" onchange="handleLogoUpload(event)">
+                    </div>
+                `;
+                printContainer.innerHTML = `<span class="text-xs text-slate-400">[Logótipo não definido]</span>`;
+            }
+        }
+
+        function saveToStorage() {
+            localStorage.setItem('p3d_machines', JSON.stringify(machines));
+            localStorage.setItem('p3d_states', JSON.stringify(states));
+        }
+
+        function formatTimeInput(input) {
+            let val = input.value.replace(/\D/g, '');
+            if (val.length > 4) val = val.slice(0, 4);
+            if (val.length >= 3) {
+                input.value = val.slice(0, 2) + ':' + val.slice(2);
+            } else {
+                input.value = val;
+            }
+            calculateCost();
+        }
+
+        function switchTab(tab) {
+            if (tab === 'calc') {
+                document.getElementById('tabCalc').classList.remove('hidden');
+                document.getElementById('tabMachines').classList.add('hidden');
+                document.getElementById('tabCalcBtn').className = "px-6 py-3 font-semibold text-blue-500 border-b-2 border-blue-500 flex items-center gap-2 transition";
+                document.getElementById('tabMachinesBtn').className = "px-6 py-3 font-semibold text-slate-400 hover:text-slate-200 border-b-2 border-transparent flex items-center gap-2 transition";
+            } else {
+                document.getElementById('tabCalc').classList.add('hidden');
+                document.getElementById('tabMachines').classList.remove('hidden');
+                document.getElementById('tabCalcBtn').className = "px-6 py-3 font-semibold text-slate-400 hover:text-slate-200 border-b-2 border-transparent flex items-center gap-2 transition";
+                document.getElementById('tabMachinesBtn').className = "px-6 py-3 font-semibold text-blue-500 border-b-2 border-blue-500 flex items-center gap-2 transition";
+            }
+        }
+
+        function renderFilaments() {
+            const container = document.getElementById('filamentsContainer');
+            container.innerHTML = '';
+
+            filaments.forEach((fil) => {
+                const div = document.createElement('div');
+                div.className = "grid grid-cols-1 md:grid-cols-12 gap-3 items-center bg-slate-900/50 p-3 rounded-lg border border-slate-800";
+                div.innerHTML = `
+                    <div class="md:col-span-5">
+                        <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-0.5">Tipo / Cor</label>
+                        <input type="text" value="${fil.type}" onchange="updateFilament(${fil.id}, 'type', this.value)" class="w-full p-2 text-sm rounded input-field" placeholder="Ex: PLA Branco">
+                    </div>
+                    <div class="md:col-span-3">
+                        <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-0.5">Preço do Carretel (R$)</label>
+                        <input type="number" value="${fil.price}" step="5" oninput="updateFilament(${fil.id}, 'price', this.value)" class="w-full p-2 text-sm rounded input-field" placeholder="0.00">
+                    </div>
+                    <div class="md:col-span-3">
+                        <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-0.5">Gasto na Peça (g)</label>
+                        <input type="number" value="${fil.grams}" step="1" oninput="updateFilament(${fil.id}, 'grams', this.value)" class="w-full p-2 text-sm rounded input-field" placeholder="0">
+                    </div>
+                    <div class="md:col-span-1 flex justify-end">
+                        ${filaments.length > 1 ? `
+                            <button onclick="removeFilament(${fil.id})" class="text-red-400 hover:text-red-300 p-2 text-sm cursor-pointer">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        ` : ''}
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+            calculateCost();
+        }
+
+        function addFilamentRow() {
+            filaments.push({ id: Date.now(), type: '', price: '', grams: '' });
+            renderFilaments();
+        }
+
+        function removeFilament(id) {
+            filaments = filaments.filter(f => f.id !== id);
+            renderFilaments();
+        }
+
+        function updateFilament(id, field, value) {
+            const fil = filaments.find(f => f.id === id);
+            if (fil) {
+                fil[field] = field === 'type' ? value : parseFloat(value) || '';
+                calculateCost();
+            }
+        }
+
+        function renderMachinesAndStates() {
+            const select = document.getElementById('machineSelect');
+            select.innerHTML = '';
+            machines.forEach(m => {
+                const opt = document.createElement('option');
+                opt.value = m.id;
+                opt.textContent = `${m.name} (${m.watts}W)`;
+                select.appendChild(opt);
+            });
+
+            const stateSelect = document.getElementById('stateSelect');
+            stateSelect.innerHTML = '';
+            states.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s.rate;
+                opt.textContent = `${s.name} (R$ ${s.rate.toFixed(2)})`;
+                stateSelect.appendChild(opt);
+            });
+
+            if(states.length > 0) {
+                document.getElementById('energyCost').value = states[0].rate;
+            }
+
+            renderMachinesList();
+            renderStatesList();
+            calculateCost();
+        }
+
+        function updateEnergyRate() {
+            const stateSelect = document.getElementById('stateSelect');
+            document.getElementById('energyCost').value = stateSelect.value;
+            calculateCost();
+        }
+
+        function renderMachinesList() {
+            const list = document.getElementById('machinesList');
+            list.innerHTML = '';
+            machines.forEach(m => {
+                const depRate = (m.price / m.lifespan).toFixed(2);
+                const div = document.createElement('div');
+                div.className = "flex items-center justify-between bg-slate-900/60 p-3 rounded-lg border border-slate-800";
+                div.innerHTML = `
+                    <div>
+                        <div class="font-bold text-white">${m.name}</div>
+                        <div class="text-xs text-slate-400">R$ ${m.price} | ${m.watts}W | ${m.lifespan}h | Dep: R$ ${depRate}/h</div>
+                    </div>
+                    <button onclick="deleteMachine(${m.id})" class="text-red-400 hover:text-red-300 p-2 text-sm cursor-pointer"><i class="fas fa-trash"></i></button>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        function renderStatesList() {
+            const list = document.getElementById('statesList');
+            list.innerHTML = '';
+            states.forEach(s => {
+                const div = document.createElement('div');
+                div.className = "flex items-center justify-between bg-slate-900/60 p-3 rounded-lg border border-slate-800";
+                div.innerHTML = `
+                    <div>
+                        <div class="font-bold text-white">${s.name}</div>
+                        <div class="text-xs text-slate-400">Tarifa: R$ ${s.rate.toFixed(2)} / kWh</div>
+                    </div>
+                    <button onclick="deleteState(${s.id})" class="text-red-400 hover:text-red-300 p-2 text-sm cursor-pointer"><i class="fas fa-trash"></i></button>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        function saveMachine(e) {
+            e.preventDefault();
+            const name = document.getElementById('macName').value;
+            const price = parseFloat(document.getElementById('macPrice').value);
+            const watts = parseFloat(document.getElementById('macWatts').value);
+            const lifespan = parseFloat(document.getElementById('macLifespan').value);
+            machines.push({ id: Date.now(), name, price, watts, lifespan });
+            saveToStorage();
+            renderMachinesAndStates();
+            document.getElementById('machineForm').reset();
+        }
+
+        function deleteMachine(id) {
+            if (machines.length <= 1) { alert('Mantenha ao menos uma máquina.'); return; }
+            machines = machines.filter(m => m.id !== id);
+            saveToStorage();
+            renderMachinesAndStates();
+        }
+
+        function saveState(e) {
+            e.preventDefault();
+            const name = document.getElementById('stName').value;
+            const rate = parseFloat(document.getElementById('stRate').value);
+            states.push({ id: Date.now(), name, rate });
+            saveToStorage();
+            renderMachinesAndStates();
+            document.getElementById('stateForm').reset();
+        }
+
+        function deleteState(id) {
+            if (states.length <= 1) { alert('Mantenha ao menos um estado.'); return; }
+            states = states.filter(s => s.id !== id);
+            saveToStorage();
+            renderMachinesAndStates();
+        }
+
+        function calculateCost() {
+            let totalFilamentCost = 0;
+            filaments.forEach(f => {
+                if(f.price && f.grams) {
+                    totalFilamentCost += (f.price / 1000) * f.grams;
+                }
+            });
+
+            const timeVal = document.getElementById('printTimeFormatted').value || "00:00";
+            const parts = timeVal.split(':');
+            const totalHours = (parseInt(parts[0]) || 0) + ((parseInt(parts[1]) || 0) / 60);
+
+            const selectedMachineId = parseInt(document.getElementById('machineSelect').value);
+            const machine = machines.find(m => m.id === selectedMachineId) || machines[0];
+
+            let depreciationRate = 0;
+            let depreciationTotal = 0;
+            if (machine && machine.lifespan > 0) {
+                depreciationRate = machine.price / machine.lifespan;
+                depreciationTotal = depreciationRate * totalHours;
+            }
+
+            document.getElementById('depreciationRateText').textContent = `R$ ${depreciationRate.toFixed(2)}`;
+            document.getElementById('depreciationTotalText').textContent = `R$ ${depreciationTotal.toFixed(2)}`;
+
+            const energyCostKwh = parseFloat(document.getElementById('energyCost').value) || 0;
+            const energyTotal = (machine ? (machine.watts / 1000) : 0) * totalHours * energyCostKwh;
+
+            const extraCost = parseFloat(document.getElementById('extraCost').value) || 0;
+            const failMarginPercent = parseFloat(document.getElementById('failMargin').value) || 0;
+            const profitMarginPercent = parseFloat(document.getElementById('profitMargin').value) || 0;
+
+            const subtotalBase = totalFilamentCost + energyTotal + depreciationTotal + extraCost;
+            const failCost = subtotalBase * (failMarginPercent / 100);
+            const totalCost = subtotalBase + failCost;
+
+            const profitValue = totalCost * (profitMarginPercent / 100);
+            const finalPrice = totalCost + profitValue;
+
+            document.getElementById('summaryFilament').textContent = `R$ ${totalFilamentCost.toFixed(2)}`;
+            document.getElementById('summaryEnergy').textContent = `R$ ${energyTotal.toFixed(2)}`;
+            document.getElementById('summaryDepreciation').textContent = `R$ ${depreciationTotal.toFixed(2)}`;
+            document.getElementById('summaryExtra').textContent = `R$ ${extraCost.toFixed(2)}`;
+            document.getElementById('summaryFail').textContent = `R$ ${failCost.toFixed(2)}`;
+            document.getElementById('summaryTotalCost').textContent = `R$ ${totalCost.toFixed(2)}`;
+            document.getElementById('summaryProfit').textContent = `R$ ${profitValue.toFixed(2)}`;
+            document.getElementById('summaryFinalPrice').textContent = `R$ ${finalPrice.toFixed(2)}`;
+
+            updatePrintView(finalPrice);
+            updateChart(totalFilamentCost, energyTotal, depreciationTotal, extraCost, failCost, profitValue);
+        }
+
+        function updatePrintView(finalPrice) {
+            document.getElementById('printJobName').textContent = document.getElementById('jobName').value || "Impressão 3D";
+            document.getElementById('printDate').textContent = new Date().toLocaleDateString('pt-BR');
+            document.getElementById('printFinalPrice').textContent = `R$ ${finalPrice.toFixed(2)}`;
+
+            // Sincronizar descrição longa no orçamento impresso
+            const longDesc = document.getElementById('longDescription').value;
+            const descContainer = document.getElementById('printLongDescriptionContainer');
+            const descField = document.getElementById('printLongDescription');
+            
+            if (longDesc && longDesc.trim() !== '') {
+                descField.textContent = longDesc;
+                descContainer.style.display = 'block';
+            } else {
+                descContainer.style.display = 'none';
+            }
+
+            const printFilamentsContainer = document.getElementById('printFilamentsList');
+            printFilamentsContainer.innerHTML = '';
+            
+            let hasFilament = false;
+            filaments.forEach(f => {
+                if (f.type && f.type.trim() !== '') {
+                    hasFilament = true;
+                    const item = document.createElement('div');
+                    item.textContent = `• ${f.type} (${f.grams ? f.grams + 'g' : 'Uso padrão'})`;
+                    printFilamentsContainer.appendChild(item);
+                }
+            });
+
+            if (!hasFilament) {
+                printFilamentsContainer.innerHTML = '<span class="text-gray-400 italic">Nenhum filamento especificado</span>';
+            }
+        }
+
+        function updateChart(fil, energy, dep, extra, fail, profit) {
+            const ctx = document.getElementById('costChart').getContext('2d');
+            if (chartInstance) { chartInstance.destroy(); }
+            chartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Filamento', 'Energia', 'Depreciação', 'Extras', 'Risco', 'Lucro'],
+                    datasets: [{
+                        data: [fil, energy, dep, extra, fail, profit],
+                        backgroundColor: ['#3b82f6', '#eab308', '#a855f7', '#ec4899', '#f97316', '#10b981'],
+                        borderWidth: 0
+                    }]
+                },
+                options: { responsive: true, plugins: { legend: { display: false } }, cutout: '70%' }
+            });
+        }
+
+        renderLogo();
+        renderMachinesAndStates();
+        renderFilaments();
+    </script>
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
           navigator.serviceWorker.register('./service-worker.js')
-            .then(reg => console.log('Service Worker registado com sucesso:', reg.scope))
-            .catch(err => console.log('Falha ao registar o Service Worker:', err));
+            .then((reg) => console.log('Service Worker registado com sucesso!', reg))
+            .catch((err) => console.log('Erro ao registar Service Worker:', err));
         });
       }
-    </script>
-    
-    <!-- Tailwind CSS para Estilização Moderna -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <style>
-        @media print {
-            .no-print { display: none !important; }
-            body { background: white !important; color: black !important; }
-            .print-card { border: none !important; box-shadow: none !important; background: white !important; }
-        }
-    </style>
-</head>
-<body class="bg-slate-900 text-slate-100 min-h-screen">
-
-    <!-- Cabeçalho Principal (Oculto na Impressão) -->
-    <header class="bg-slate-800 border-b border-slate-700 py-6 px-4 shadow-lg no-print">
-        <div class="max-w-4xl mx-auto flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <img src="./PrintArt.svg" alt="PrintArt3D Logo" class="h-10 w-auto">
-                <h1 class="text-xl font-bold bg-gradient-to-r from-blue-400 to-teal-400 bg-clip-text text-transparent">
-                    PrintArt3D
-                </h1>
-            </div>
-            <span class="text-xs bg-slate-700 text-slate-300 px-3 py-1 rounded-full font-medium border border-slate-600">
-                Calculadora de Custos
-            </span>
-        </div>
-    </header>
-
-    <!-- Corpo Principal da Aplicação -->
-    <main class="max-w-4xl mx-auto p-4 md:p-6 space-y-6">
-
-        <!-- Formulário de Parâmetros e Descrição -->
-        <section class="bg-slate-800 rounded-xl p-6 border border-slate-700 shadow-md no-print">
-            <h2 class="text-lg font-semibold text-teal-400 mb-4">Parâmetros de Impressão</h2>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-sm font-medium text-slate-300 mb-1">Peso da Peça (g)</label>
-                    <input type="number" id="pesoPeca" placeholder="Ex: 150" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-100 focus:ring-2 focus:ring-teal-500 outline-none">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-slate-300 mb-1">Preço do Filamento (R$/kg)</label>
-                    <input type="number" id="precoFilamento" placeholder="Ex: 100" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-100 focus:ring-2 focus:ring-teal-500 outline-none">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-slate-300 mb-1">Tempo de Impressão (Horas)</label>
-                    <input type="number" id="tempoImpressao" placeholder="Ex: 5" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-100 focus:ring-2 focus:ring-teal-500 outline-none">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-slate-300 mb-1">Consumo da Impressora (W)</label>
-                    <input type="number" id="potenciaImpressora" value="350" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-100 focus:ring-2 focus:ring-teal-500 outline-none">
-                </div>
-            </div>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                <div>
-                    <label class="block text-sm font-medium text-slate-300 mb-1">Custo de Energia (R$/kWh)</label>
-                    <input type="number" id="custoKwh" value="0.90" step="0.01" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-100 focus:ring-2 focus:ring-blue-500 outline-none">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-slate-300 mb-1">Margem de Lucro (%)</label>
-                    <input type="number" id="margemLucro" value="100" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-100 focus:ring-2 focus:ring-blue-500 outline-none">
-                </div>
-            </div>
-
-            <!-- Caixa de Texto Ampla para Descrição Detalhada (Logo abaixo de Margem e Riscos) -->
-            <div class="mt-4">
-                <label class="block text-sm font-medium text-teal-400 mb-1">Descrição Detalhada do Orçamento / Observações</label>
-                <textarea id="descricaoInput" rows="5" placeholder="Escreva aqui todos os detalhes, especificações de filamento, acabamento ou prazos (suporta textos longos)..." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-slate-100 focus:ring-2 focus:ring-teal-500 outline-none"></textarea>
-            </div>
-
-            <!-- Botão de Ação -->
-            <button onclick="calcularCustos()" class="mt-6 w-full bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white font-bold py-3 px-4 rounded-lg shadow-lg transition duration-200 cursor-pointer">
-                Calcular e Gerar Orçamento
-            </button>
-        </section>
-
-        <!-- Orçamento Formatado / Resultado (Aparece ao Calcular e na Impressão) -->
-        <section id="resultado" class="hidden bg-slate-800 rounded-xl p-6 border border-slate-700 shadow-md print-card space-y-4">
-            
-            <div class="text-center pb-4 border-b border-slate-700 mb-4 print:border-slate-300">
-                <img src="./PrintArt.svg" alt="PrintArt3D" class="h-16 mx-auto mb-2">
-                <h2 class="text-2xl font-bold text-slate-100 print:text-black">PrintArt3D</h2>
-                <p class="text-sm text-slate-400 print:text-slate-600">Orçamento de Impressão 3D</p>
-            </div>
-
-            <!-- Bloco da Descrição Longa no Orçamento -->
-            <div class="mb-4">
-                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1 print:text-slate-700">Descrição do Orçamento:</h3>
-                <div id="displayDescricao" class="bg-slate-900/50 p-3 rounded-lg border border-slate-700 text-slate-200 font-medium whitespace-pre-line print:bg-slate-100 print:border-slate-300 print:text-black"></div>
-            </div>
-
-            <!-- Totais e Valores -->
-            <div class="space-y-2 border-t border-slate-700 pt-4 print:border-slate-300">
-                <div class="flex justify-between text-slate-300 text-sm print:text-black">
-                    <span>Custo de Material:</span>
-                    <span id="custoMaterial" class="font-semibold">R$ 0,00</span>
-                </div>
-                <div class="flex justify-between text-slate-300 text-sm print:text-black">
-                    <span>Custo de Energia:</span>
-                    <span id="custoEnergia" class="font-semibold">R$ 0,00</span>
-                </div>
-                <div class="flex justify-between text-xl font-bold text-teal-400 pt-2 border-t border-slate-700 print:text-black print:border-slate-400">
-                    <span>Valor Total do Orçamento:</span>
-                    <span id="precoFinal">R$ 0,00</span>
-                </div>
-            </div>
-
-            <!-- Botão de Imprimir / Gerar PDF -->
-            <button onclick="window.print()" class="mt-6 w-full bg-slate-700 hover:bg-slate-600 text-white font-semibold py-2.5 px-4 rounded-lg shadow transition no-print cursor-pointer">
-                Imprimir / Salvar PDF
-            </button>
-        </section>
-
-    </main>
-
-    <!-- Lógica de Cálculo -->
-    <script>
-        function calcularCustos() {
-            const peso = parseFloat(document.getElementById('pesoPeca').value) || 0;
-            const precoFil = parseFloat(document.getElementById('precoFilamento').value) || 0;
-            const tempo = parseFloat(document.getElementById('tempoImpressao').value) || 0;
-            const potencia = parseFloat(document.getElementById('potenciaImpressora').value) || 0;
-            const kwh = parseFloat(document.getElementById('custoKwh').value) || 0;
-            const margem = parseFloat(document.getElementById('margemLucro').value) || 0;
-            const desc = document.getElementById('descricaoInput').value;
-
-            // Cálculos matemáticos
-            const matCusto = (peso / 1000) * precoFil;
-            const energCusto = (potencia / 1000) * tempo * kwh;
-            const custoBase = matCusto + energCusto;
-            const precoVenda = custoBase * (1 + (margem / 100));
-
-            // Atribuição de valores aos elementos visuais
-            document.getElementById('displayDescricao').innerText = desc || 'Nenhuma descrição informada.';
-            document.getElementById('custoMaterial').innerText = `R$ ${matCusto.toFixed(2)}`;
-            document.getElementById('custoEnergia').innerText = `R$ ${energCusto.toFixed(2)}`;
-            document.getElementById('precoFinal').innerText = `R$ ${precoVenda.toFixed(2)}`;
-
-            // Exibir a caixa de resultado
-            document.getElementById('resultado').classList.remove('hidden');
-        }
     </script>
 </body>
 </html>
