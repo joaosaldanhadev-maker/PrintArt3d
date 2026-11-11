@@ -31,7 +31,7 @@
     </style>
 </head>
     
-<body class="p-4 md:p-8">
+    <body class="p-4 md:p-8">
 
     <div class="max-w-5xl mx-auto no-print">
         <header class="flex flex-col items-center justify-center text-center gap-3 mb-6 pb-6 border-b border-slate-700">
@@ -127,7 +127,7 @@
                             <input type="number" id="extraCost" value="" step="0.50" oninput="calculateCost()" class="w-full p-2.5 rounded-lg input-field" placeholder="0.00">
                         </div>
                     </div>
-
+                    <!-- Bloco Único de Margens, Riscos e Descrição -->
                     <div class="card p-5 rounded-xl space-y-4">
                         <h2 class="text-lg font-bold text-slate-200 border-b border-slate-700 pb-2 flex items-center gap-2">
                             <i class="fas fa-percentage text-blue-400"></i> Margens e Riscos
@@ -136,18 +136,20 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Margem de Falhas/Perdas (%)</label>
-                                <input type="number" id="failMargin" value="" step="1" oninput="calculateCost()" class="w-full p-2.5 rounded-lg input-field" placeholder="0">
+                                <input type="number" id="failMargin" value="0" step="1" oninput="calculateCost()" class="w-full p-2.5 rounded-lg input-field" placeholder="0">
                             </div>
 
                             <div>
                                 <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Margem de Lucro (%)</label>
-                                <input type="number" id="profitMargin" value="" step="5" oninput="calculateCost()" class="w-full p-2.5 rounded-lg input-field" placeholder="0">
+                                <input type="number" id="profitMargin" value="0" step="5" oninput="calculateCost()" class="w-full p-2.5 rounded-lg input-field" placeholder="0">
                             </div>
                         </div>
 
-                        <!-- Caixa de Texto Ampla para Descrição Detalhada / Observações Longas -->
-                        <div class="pt-2">
-                            <label class="block text-xs font-semibold uppercase tracking-wider text-blue-400 mb-1"><i class="fas fa-align-left mr-1"></i> Descrição Detalhada / Observações do Orçamento</label>
+                        <!-- Caixa de Texto Ampla com Largura Total (100%) -->
+                        <div class="pt-3 border-t border-slate-700/60 mt-4">
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-blue-400 mb-1">
+                                <i class="fas fa-align-left mr-1"></i> Descrição Detalhada / Observações do Orçamento
+                            </label>
                             <textarea id="longDescription" rows="4" oninput="calculateCost()" class="w-full p-3 rounded-lg input-field text-sm" placeholder="Escreva aqui especificações técnicas, prazos de entrega, tipo de acabamento ou observações extensas para o cliente..."></textarea>
                         </div>
                     </div>
@@ -204,6 +206,57 @@
                 </div>
             </div>
         </div>
+                <div class="space-y-6">
+                    <div class="card p-5 rounded-xl space-y-4 border-2 border-blue-500/30 sticky top-4">
+                        <h2 class="text-lg font-bold text-slate-200 border-b border-slate-700 pb-2">Resumo Financeiro</h2>
+                        
+                        <div class="space-y-2 text-sm text-slate-300">
+                            <div class="flex justify-between">
+                                <span>Custo de Filamento:</span>
+                                <span id="summaryFilament" class="font-semibold text-slate-100">R$ 0,00</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Energia Elétrica:</span>
+                                <span id="summaryEnergy" class="font-semibold text-slate-100">R$ 0,00</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Depreciação da Máquina:</span>
+                                <span id="summaryDepreciation" class="font-semibold text-slate-100">R$ 0,00</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Insumos Extras:</span>
+                                <span id="summaryExtra" class="font-semibold text-slate-100">R$ 0,00</span>
+                            </div>
+                            <div class="flex justify-between text-amber-400 pt-1 border-t border-slate-800">
+                                <span>Risco/Falhas:</span>
+                                <span id="summaryFail" class="font-semibold">R$ 0,00</span>
+                            </div>
+                            <div class="flex justify-between text-base font-bold text-slate-100 pt-2 border-t border-slate-700">
+                                <span>Custo Total:</span>
+                                <span id="summaryTotalCost" class="text-red-400">R$ 0,00</span>
+                            </div>
+                            <div class="flex justify-between text-sm text-emerald-400">
+                                <span>Lucro Bruto:</span>
+                                <span id="summaryProfit" class="font-semibold">R$ 0,00</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-blue-950/60 border border-blue-700/50 p-4 rounded-xl text-center space-y-1">
+                            <span class="text-xs font-semibold uppercase tracking-wider text-blue-300">Preço Sugerido de Venda</span>
+                            <div id="summaryFinalPrice" class="text-3xl font-extrabold text-emerald-400">R$ 0,00</div>
+                        </div>
+
+                        <div class="pt-2">
+                            <canvas id="costChart" width="100" height="100"></canvas>
+                        </div>
+
+                        <button onclick="window.print()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2 text-base">
+                            <i class="fas fa-file-invoice"></i> Gerar orçamento
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <div id="tabMachines" class="hidden space-y-6">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -230,7 +283,7 @@
                                 <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Vida Útil (Horas)</label>
                                 <input type="number" id="macLifespan" step="100" required class="w-full p-2.5 rounded-lg input-field" placeholder="5000">
                             </div>
-                            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 rounded-lg transition cursor-pointer">Salvar Impressora</button>
+                            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 rounded-lg transition">Salvar Impressora</button>
                         </form>
                     </div>
                     <div class="card p-5 rounded-xl space-y-4">
@@ -254,7 +307,7 @@
                                 <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Tarifa de Luz (R$/kWh)</label>
                                 <input type="number" id="stRate" step="0.01" required class="w-full p-2.5 rounded-lg input-field" placeholder="0.85">
                             </div>
-                            <button type="submit" class="w-full bg-yellow-600 hover:bg-yellow-500 text-white font-bold py-2.5 rounded-lg transition cursor-pointer">Salvar Estado</button>
+                            <button type="submit" class="w-full bg-yellow-600 hover:bg-yellow-500 text-white font-bold py-2.5 rounded-lg transition">Salvar Estado</button>
                         </form>
                     </div>
                     <div class="card p-5 rounded-xl space-y-4">
@@ -282,12 +335,6 @@
         <div class="mb-6">
             <h2 class="text-sm font-bold uppercase tracking-wider text-gray-500 mb-2">Descrição do Projeto / Peça:</h2>
             <div id="printJobName" class="text-xl font-bold text-gray-900 border-2 border-dashed border-gray-300 p-4 rounded-xl bg-gray-50"></div>
-        </div>
-
-        <!-- Bloco da Descrição Longa Detalhada no Orçamento Impreso -->
-        <div class="mb-6" id="printLongDescriptionContainer">
-            <h2 class="text-sm font-bold uppercase tracking-wider text-gray-500 mb-2">Especificações e Observações:</h2>
-            <div id="printLongDescription" class="text-sm font-medium text-gray-800 border border-gray-300 p-4 rounded-xl bg-gray-50 whitespace-pre-line"></div>
         </div>
 
         <div class="mb-6">
@@ -408,7 +455,7 @@
                     </div>
                     <div class="md:col-span-1 flex justify-end">
                         ${filaments.length > 1 ? `
-                            <button onclick="removeFilament(${fil.id})" class="text-red-400 hover:text-red-300 p-2 text-sm cursor-pointer">
+                            <button onclick="removeFilament(${fil.id})" class="text-red-400 hover:text-red-300 p-2 text-sm">
                                 <i class="fas fa-trash"></i>
                             </button>
                         ` : ''}
@@ -483,7 +530,7 @@
                         <div class="font-bold text-white">${m.name}</div>
                         <div class="text-xs text-slate-400">R$ ${m.price} | ${m.watts}W | ${m.lifespan}h | Dep: R$ ${depRate}/h</div>
                     </div>
-                    <button onclick="deleteMachine(${m.id})" class="text-red-400 hover:text-red-300 p-2 text-sm cursor-pointer"><i class="fas fa-trash"></i></button>
+                    <button onclick="deleteMachine(${m.id})" class="text-red-400 hover:text-red-300 p-2 text-sm"><i class="fas fa-trash"></i></button>
                 `;
                 list.appendChild(div);
             });
@@ -500,7 +547,7 @@
                         <div class="font-bold text-white">${s.name}</div>
                         <div class="text-xs text-slate-400">Tarifa: R$ ${s.rate.toFixed(2)} / kWh</div>
                     </div>
-                    <button onclick="deleteState(${s.id})" class="text-red-400 hover:text-red-300 p-2 text-sm cursor-pointer"><i class="fas fa-trash"></i></button>
+                    <button onclick="deleteState(${s.id})" class="text-red-400 hover:text-red-300 p-2 text-sm"><i class="fas fa-trash"></i></button>
                 `;
                 list.appendChild(div);
             });
@@ -599,18 +646,6 @@
             document.getElementById('printDate').textContent = new Date().toLocaleDateString('pt-BR');
             document.getElementById('printFinalPrice').textContent = `R$ ${finalPrice.toFixed(2)}`;
 
-            // Sincronizar descrição longa no orçamento impresso
-            const longDesc = document.getElementById('longDescription').value;
-            const descContainer = document.getElementById('printLongDescriptionContainer');
-            const descField = document.getElementById('printLongDescription');
-            
-            if (longDesc && longDesc.trim() !== '') {
-                descField.textContent = longDesc;
-                descContainer.style.display = 'block';
-            } else {
-                descContainer.style.display = 'none';
-            }
-
             const printFilamentsContainer = document.getElementById('printFilamentsList');
             printFilamentsContainer.innerHTML = '';
             
@@ -650,14 +685,14 @@
         renderMachinesAndStates();
         renderFilaments();
     </script>
-    <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('./service-worker.js')
-            .then((reg) => console.log('Service Worker registado com sucesso!', reg))
-            .catch((err) => console.log('Erro ao registar Service Worker:', err));
-        });
-      }
-    </script>
+        <script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./service-worker.js')
+        .then((reg) => console.log('Service Worker registado com sucesso!', reg))
+        .catch((err) => console.log('Erro ao registar Service Worker:', err));
+    });
+  }
+</script>
 </body>
 </html>
