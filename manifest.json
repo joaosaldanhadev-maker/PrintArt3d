@@ -1,7 +1,7 @@
 {
   "name": "PrintArt3D",
   "short_name": "PrintArt3D",
-  "start_url": "./Calculadora.html",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#0f172a",
   "theme_color": "#0f172a",
