@@ -2,11 +2,10 @@ const CACHE_NAME = 'printart-cache-v1';
 const urlsToCache = [
   './index.html',
   './manifest.json',
-  './icon-192x192.png',
-  './icon-512x512.png'
+  './launchericon-192x192.png',
+  './launchericon-512x512.png'
 ];
 
-// Instalação do Service Worker e armazenamento em cache
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
@@ -16,7 +15,6 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// Interceção de pedidos para servir os ficheiros offline
 self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request)
@@ -26,7 +24,6 @@ self.addEventListener('fetch', (event) => {
   );
 });
 
-// Ativação e limpeza de caches antigos
 self.addEventListener('activate', (event) => {
   const cacheWhitelist = [CACHE_NAME];
   event.waitUntil(
