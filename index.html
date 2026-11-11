@@ -31,13 +31,13 @@
     </style>
 </head>
     
-    <body class="p-4 md:p-8">
+<body class="p-4 md:p-8">
 
     <div class="max-w-5xl mx-auto no-print">
         <header class="flex flex-col items-center justify-center text-center gap-3 mb-6 pb-6 border-b border-slate-700">
-            <!-- Contentor do Logótipo sem bordas e perfeitamente integrado -->
-            <div id="logoContainer" class="bg-[#0f172a] p-1 flex flex-col items-center justify-center">
-                <!-- Inserido dinamicamente via Script -->
+            <!-- Logótipo Fixo em PNG com fundo branco arredondado -->
+            <div id="logoContainer" class="bg-white p-3 rounded-2xl shadow-lg flex flex-col items-center justify-center">
+                <img src="./logo.png" alt="PrintArt3D Logo" class="h-24 w-auto object-contain">
             </div>
             
             <div>
@@ -206,57 +206,6 @@
                 </div>
             </div>
         </div>
-                <div class="space-y-6">
-                    <div class="card p-5 rounded-xl space-y-4 border-2 border-blue-500/30 sticky top-4">
-                        <h2 class="text-lg font-bold text-slate-200 border-b border-slate-700 pb-2">Resumo Financeiro</h2>
-                        
-                        <div class="space-y-2 text-sm text-slate-300">
-                            <div class="flex justify-between">
-                                <span>Custo de Filamento:</span>
-                                <span id="summaryFilament" class="font-semibold text-slate-100">R$ 0,00</span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span>Energia Elétrica:</span>
-                                <span id="summaryEnergy" class="font-semibold text-slate-100">R$ 0,00</span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span>Depreciação da Máquina:</span>
-                                <span id="summaryDepreciation" class="font-semibold text-slate-100">R$ 0,00</span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span>Insumos Extras:</span>
-                                <span id="summaryExtra" class="font-semibold text-slate-100">R$ 0,00</span>
-                            </div>
-                            <div class="flex justify-between text-amber-400 pt-1 border-t border-slate-800">
-                                <span>Risco/Falhas:</span>
-                                <span id="summaryFail" class="font-semibold">R$ 0,00</span>
-                            </div>
-                            <div class="flex justify-between text-base font-bold text-slate-100 pt-2 border-t border-slate-700">
-                                <span>Custo Total:</span>
-                                <span id="summaryTotalCost" class="text-red-400">R$ 0,00</span>
-                            </div>
-                            <div class="flex justify-between text-sm text-emerald-400">
-                                <span>Lucro Bruto:</span>
-                                <span id="summaryProfit" class="font-semibold">R$ 0,00</span>
-                            </div>
-                        </div>
-
-                        <div class="bg-blue-950/60 border border-blue-700/50 p-4 rounded-xl text-center space-y-1">
-                            <span class="text-xs font-semibold uppercase tracking-wider text-blue-300">Preço Sugerido de Venda</span>
-                            <div id="summaryFinalPrice" class="text-3xl font-extrabold text-emerald-400">R$ 0,00</div>
-                        </div>
-
-                        <div class="pt-2">
-                            <canvas id="costChart" width="100" height="100"></canvas>
-                        </div>
-
-                        <button onclick="window.print()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2 text-base">
-                            <i class="fas fa-file-invoice"></i> Gerar orçamento
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
 
         <div id="tabMachines" class="hidden space-y-6">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -322,7 +271,9 @@
     <!-- FOLHA DE ORÇAMENTO -->
     <div class="print-only max-w-2xl mx-auto p-8 bg-white text-black">
         <div class="flex flex-col items-center justify-center border-b-2 border-black pb-6 mb-8 text-center bg-[#0f172a] p-6 rounded-2xl text-white">
-            <div id="printLogoContainer" class="mb-3"></div>
+            <div id="printLogoContainer" class="mb-3">
+                <img src="./logo.png" alt="PrintArt3D Logo" class="h-24 w-auto object-contain bg-white p-2 rounded-xl">
+            </div>
             <h1 class="text-3xl font-black">PrintArt3D</h1>
             <p class="text-sm font-semibold text-gray-300 mt-1">Orçamento de Impressão 3D</p>
             <div class="flex gap-4 text-xs font-medium text-gray-300 mt-3">
@@ -335,6 +286,12 @@
         <div class="mb-6">
             <h2 class="text-sm font-bold uppercase tracking-wider text-gray-500 mb-2">Descrição do Projeto / Peça:</h2>
             <div id="printJobName" class="text-xl font-bold text-gray-900 border-2 border-dashed border-gray-300 p-4 rounded-xl bg-gray-50"></div>
+        </div>
+
+        <!-- Bloco da Descrição Longa Detalhada no Orçamento Impresso -->
+        <div class="mb-6" id="printLongDescriptionContainer">
+            <h2 class="text-sm font-bold uppercase tracking-wider text-gray-500 mb-2">Especificações e Observações:</h2>
+            <div id="printLongDescription" class="text-sm font-medium text-gray-800 border border-gray-300 p-4 rounded-xl bg-gray-50 whitespace-pre-line"></div>
         </div>
 
         <div class="mb-6">
@@ -370,38 +327,6 @@
         ];
 
         let chartInstance = null;
-
-        // Gestão do Logótipo (Upload apenas na primeira vez se não existir)
-        function handleLogoUpload(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    localStorage.setItem('p3d_custom_logo', e.target.result);
-                    renderLogo();
-                };
-                reader.readAsDataURL(file);
-            }
-        }
-
-        function renderLogo() {
-            const savedLogo = localStorage.getItem('p3d_custom_logo');
-            const container = document.getElementById('logoContainer');
-            const printContainer = document.getElementById('printLogoContainer');
-
-            if (savedLogo) {
-                container.innerHTML = `<img src="${savedLogo}" alt="Logo" class="h-28 w-auto object-contain">`;
-                printContainer.innerHTML = `<img src="${savedLogo}" class="h-28 w-auto object-contain bg-[#0f172a] p-2 rounded-xl">`;
-            } else {
-                container.innerHTML = `
-                    <div class="text-center p-4">
-                        <p class="text-xs font-semibold text-slate-300 mb-2">Carregue o seu logótipo pela primeira vez:</p>
-                        <input type="file" id="logoFileInput" class="text-xs text-slate-400 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-500 cursor-pointer" accept="image/*" onchange="handleLogoUpload(event)">
-                    </div>
-                `;
-                printContainer.innerHTML = `<span class="text-xs text-slate-400">[Logótipo não definido]</span>`;
-            }
-        }
 
         function saveToStorage() {
             localStorage.setItem('p3d_machines', JSON.stringify(machines));
@@ -646,6 +571,18 @@
             document.getElementById('printDate').textContent = new Date().toLocaleDateString('pt-BR');
             document.getElementById('printFinalPrice').textContent = `R$ ${finalPrice.toFixed(2)}`;
 
+            // Sincronizar descrição longa no orçamento impresso
+            const longDesc = document.getElementById('longDescription').value;
+            const descContainer = document.getElementById('printLongDescriptionContainer');
+            const descField = document.getElementById('printLongDescription');
+            
+            if (longDesc && longDesc.trim() !== '') {
+                descField.textContent = longDesc;
+                descContainer.style.display = 'block';
+            } else {
+                descContainer.style.display = 'none';
+            }
+
             const printFilamentsContainer = document.getElementById('printFilamentsList');
             printFilamentsContainer.innerHTML = '';
             
@@ -681,18 +618,17 @@
             });
         }
 
-        renderLogo();
         renderMachinesAndStates();
         renderFilaments();
     </script>
-        <script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./service-worker.js')
-        .then((reg) => console.log('Service Worker registado com sucesso!', reg))
-        .catch((err) => console.log('Erro ao registar Service Worker:', err));
-    });
-  }
-</script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('./service-worker.js')
+            .then((reg) => console.log('Service Worker registado com sucesso!', reg))
+            .catch((err) => console.log('Erro ao registar Service Worker:', err));
+        });
+      }
+    </script>
 </body>
 </html>
