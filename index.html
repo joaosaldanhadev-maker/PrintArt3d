@@ -35,7 +35,7 @@
 
     <div class="max-w-5xl mx-auto no-print">
         <header class="flex flex-col items-center justify-center text-center gap-3 mb-6 pb-6 border-b border-slate-700">
-            <!-- Contentor do Logótipo fixo com a cor de fundo exata da página (#0f172a) -->
+            <!-- Logótipo Fixo em PNG com a cor de fundo da página -->
             <div id="logoContainer" class="bg-[#0f172a] p-1 flex flex-col items-center justify-center">
                 <img src="./logo.png" alt="PrintArt3D Logo" class="h-24 w-auto object-contain">
             </div>
@@ -127,6 +127,7 @@
                             <input type="number" id="extraCost" value="" step="0.50" oninput="calculateCost()" class="w-full p-2.5 rounded-lg input-field" placeholder="0.00">
                         </div>
                     </div>
+
                     <!-- Bloco Único de Margens, Riscos e Descrição -->
                     <div class="card p-5 rounded-xl space-y-4">
                         <h2 class="text-lg font-bold text-slate-200 border-b border-slate-700 pb-2 flex items-center gap-2">
@@ -571,7 +572,6 @@
             document.getElementById('printDate').textContent = new Date().toLocaleDateString('pt-BR');
             document.getElementById('printFinalPrice').textContent = `R$ ${finalPrice.toFixed(2)}`;
 
-            // Sincronizar descrição longa no orçamento impresso
             const longDesc = document.getElementById('longDescription').value;
             const descContainer = document.getElementById('printLongDescriptionContainer');
             const descField = document.getElementById('printLongDescription');
@@ -583,52 +583,4 @@
                 descContainer.style.display = 'none';
             }
 
-            const printFilamentsContainer = document.getElementById('printFilamentsList');
-            printFilamentsContainer.innerHTML = '';
-            
-            let hasFilament = false;
-            filaments.forEach(f => {
-                if (f.type && f.type.trim() !== '') {
-                    hasFilament = true;
-                    const item = document.createElement('div');
-                    item.textContent = `• ${f.type} (${f.grams ? f.grams + 'g' : 'Uso padrão'})`;
-                    printFilamentsContainer.appendChild(item);
-                }
-            });
-
-            if (!hasFilament) {
-                printFilamentsContainer.innerHTML = '<span class="text-gray-400 italic">Nenhum filamento especificado</span>';
-            }
-        }
-
-        function updateChart(fil, energy, dep, extra, fail, profit) {
-            const ctx = document.getElementById('costChart').getContext('2d');
-            if (chartInstance) { chartInstance.destroy(); }
-            chartInstance = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Filamento', 'Energia', 'Depreciação', 'Extras', 'Risco', 'Lucro'],
-                    datasets: [{
-                        data: [fil, energy, dep, extra, fail, profit],
-                        backgroundColor: ['#3b82f6', '#eab308', '#a855f7', '#ec4899', '#f97316', '#10b981'],
-                        borderWidth: 0
-                    }]
-                },
-                options: { responsive: true, plugins: { legend: { display: false } }, cutout: '70%' }
-            });
-        }
-
-        renderMachinesAndStates();
-        renderFilaments();
-    </script>
-    <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('./service-worker.js')
-            .then((reg) => console.log('Service Worker registado com sucesso!', reg))
-            .catch((err) => console.log('Erro ao registar Service Worker:', err));
-        });
-      }
-    </script>
-</body>
-</html>
+            const printFilamentsContainer = document.getElementById('printFil
