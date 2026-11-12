@@ -22,10 +22,18 @@
             -moz-appearance: textfield;
         }
         @media print {
-            body { background-color: #fff !important; color: #000 !important; }
+            @page { margin: 0; size: auto; }
+            body, html { 
+                background-color: #0f172a !important; 
+                color: #f8fafc !important; 
+                margin: 0 !important;
+                padding: 0 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
             .no-print { display: none !important; }
-            .print-only { display: block !important; }
-            .card { background-color: #fff !important; border: 1px solid #ddd !important; color: #000 !important; }
+            .print-only { display: block !important; width: 100% !important; min-height: 100vh !important; margin: 0 !important; padding: 2rem !important; }
+            .print-card { background-color: #1e293b !important; border: 1px solid #334155 !important; color: #f8fafc !important; }
         }
         .print-only { display: none; }
     </style>
@@ -51,10 +59,10 @@
         </header>
 
         <div class="flex border-b border-slate-700 mb-6 justify-center">
-            <button id="tabCalcBtn" onclick="switchTab('calc')" class="px-6 py-3 font-semibold text-blue-500 border-b-2 border-blue-500 flex items-center gap-2 transition">
+            <button id="tabCalcBtn" onclick="switchTab('calc')" class="px-6 py-3 font-semibold text-blue-500 border-b-2 border-blue-500 flex items-center gap-2 transition cursor-pointer">
                 <i class="fas fa-calculator"></i> Calculadora de Custos
             </button>
-            <button id="tabMachinesBtn" onclick="switchTab('machines')" class="px-6 py-3 font-semibold text-slate-400 hover:text-slate-200 border-b-2 border-transparent flex items-center gap-2 transition">
+            <button id="tabMachinesBtn" onclick="switchTab('machines')" class="px-6 py-3 font-semibold text-slate-400 hover:text-slate-200 border-b-2 border-transparent flex items-center gap-2 transition cursor-pointer">
                 <i class="fas fa-print"></i> Gerenciar Máquinas e Estados
             </button>
         </div>
@@ -62,22 +70,24 @@
         <div id="tabCalc" class="space-y-6">
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div class="lg:col-span-2 space-y-6">
+                    <!-- INFORMAÇÕES DA PEÇA -->
                     <div class="card p-5 rounded-xl space-y-4">
                         <h2 class="text-lg font-bold text-slate-200 border-b border-slate-700 pb-2 flex items-center gap-2">
                             <i class="fas fa-info-circle text-blue-400"></i> Informações da Peça
                         </h2>
                         <div>
                             <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Descrição do Projeto / Peça</label>
-                            <input type="text" id="jobName" value="" class="w-full p-2.5 rounded-lg input-field" placeholder="Ex: Action Figure, Engrenagem, Suporte">
+                            <input type="text" id="jobName" value="" oninput="calculateCost()" class="w-full p-2.5 rounded-lg input-field" placeholder="Ex: Action Figure, Engrenagem, Suporte">
                         </div>
                     </div>
 
+                    <!-- FILAMENTOS -->
                     <div class="card p-5 rounded-xl space-y-4">
                         <div class="flex justify-between items-center border-b border-slate-700 pb-2">
                             <h2 class="text-lg font-bold text-slate-200 flex items-center gap-2">
                                 <i class="fas fa-layer-group text-blue-400"></i> Filamentos
                             </h2>
-                            <button onclick="addFilamentRow()" class="bg-blue-600 hover:bg-blue-500 text-white text-xs px-3 py-1.5 rounded-lg flex items-center gap-1 transition">
+                            <button onclick="addFilamentRow()" class="bg-blue-600 hover:bg-blue-500 text-white text-xs px-3 py-1.5 rounded-lg flex items-center gap-1 transition cursor-pointer">
                                 <i class="fas fa-plus"></i> Adicionar Filamento
                             </button>
                         </div>
@@ -85,6 +95,21 @@
                         <div id="filamentsContainer" class="space-y-3"></div>
                     </div>
 
+                    <!-- ITENS / COMPONENTES EXTRAS -->
+                    <div class="card p-5 rounded-xl space-y-4">
+                        <div class="flex justify-between items-center border-b border-slate-700 pb-2">
+                            <h2 class="text-lg font-bold text-slate-200 flex items-center gap-2">
+                                <i class="fas fa-microchip text-pink-400"></i> Itens / Componentes Extras
+                            </h2>
+                            <button onclick="addExtraItemRow()" class="bg-pink-600 hover:bg-pink-500 text-white text-xs px-3 py-1.5 rounded-lg flex items-center gap-1 transition cursor-pointer">
+                                <i class="fas fa-plus"></i> Adicionar Item
+                            </button>
+                        </div>
+                        
+                        <div id="extraItemsContainer" class="space-y-3"></div>
+                    </div>
+
+                    <!-- MÁQUINA E CONSUMO -->
                     <div class="card p-5 rounded-xl space-y-4">
                         <h2 class="text-lg font-bold text-slate-200 border-b border-slate-700 pb-2 flex items-center gap-2">
                             <i class="fas fa-cogs text-blue-400"></i> Máquina e Consumo
@@ -103,7 +128,7 @@
 
                             <div>
                                 <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Tempo de Impressão (HH:MM)</label>
-                                <input type="text" id="printTimeFormatted" value="" maxlength="5" oninput="formatTimeInput(this)" onchange="calculateCost()" class="w-full p-2.5 rounded-lg input-field text-center font-mono tracking-widest text-lg" placeholder="">
+                                <input type="text" id="printTimeFormatted" value="" maxlength="5" oninput="formatTimeInput(this)" onchange="calculateCost()" class="w-full p-2.5 rounded-lg input-field text-center font-mono tracking-widest text-lg" placeholder="00:00">
                                 <span class="text-[10px] text-slate-400 mt-1 block"></span>
                             </div>
                         </div>
@@ -121,11 +146,12 @@
                         </div>
 
                         <div class="pt-2">
-                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Insumos Extras / Acabamento (R$)</label>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Acabamento / Taxa Fixa Adicional (R$)</label>
                             <input type="number" id="extraCost" value="" step="0.50" oninput="calculateCost()" class="w-full p-2.5 rounded-lg input-field" placeholder="0.00">
                         </div>
                     </div>
 
+                    <!-- MARGENS E RISCOS -->
                     <div class="card p-5 rounded-xl space-y-4">
                         <h2 class="text-lg font-bold text-slate-200 border-b border-slate-700 pb-2 flex items-center gap-2">
                             <i class="fas fa-percentage text-blue-400"></i> Margens e Riscos
@@ -134,16 +160,17 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Margem de Falhas/Perdas (%)</label>
-                                <input type="number" id="failMargin" value="10" step="1" oninput="calculateCost()" class="w-full p-2.5 rounded-lg input-field" placeholder="10">
+                                <input type="number" id="failMargin" value="" step="1" oninput="calculateCost()" class="w-full p-2.5 rounded-lg input-field" placeholder="10">
                             </div>
 
                             <div>
                                 <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Margem de Lucro (%)</label>
-                                <input type="number" id="profitMargin" value="100" step="5" oninput="calculateCost()" class="w-full p-2.5 rounded-lg input-field" placeholder="100">
+                                <input type="number" id="profitMargin" value="" step="5" oninput="calculateCost()" class="w-full p-2.5 rounded-lg input-field" placeholder="100">
                             </div>
                         </div>
                     </div>
 
+                    <!-- DESCRIÇÃO DETALHADA -->
                     <div class="card p-5 rounded-xl space-y-4">
                         <h2 class="text-lg font-bold text-slate-200 border-b border-slate-700 pb-2 flex items-center gap-2">
                             <i class="fas fa-align-left text-blue-400"></i> Descrição Detalhada / Observações do Orçamento
@@ -155,6 +182,7 @@
                     </div>
                 </div>
 
+                <!-- RESUMO FINANCEIRO -->
                 <div class="space-y-6">
                     <div class="card p-5 rounded-xl space-y-4 border-2 border-blue-500/30 sticky top-4">
                         <h2 class="text-lg font-bold text-slate-200 border-b border-slate-700 pb-2">Resumo Financeiro</h2>
@@ -173,7 +201,7 @@
                                 <span id="summaryDepreciation" class="font-semibold text-slate-100">R$ 0,00</span>
                             </div>
                             <div class="flex justify-between">
-                                <span>Insumos Extras:</span>
+                                <span>Insumos / Itens Extras:</span>
                                 <span id="summaryExtra" class="font-semibold text-slate-100">R$ 0,00</span>
                             </div>
                             <div class="flex justify-between text-amber-400 pt-1 border-t border-slate-800">
@@ -201,8 +229,13 @@
                             </button>
                         </div>
 
-                        <div class="pt-2">
+                        <!-- GRÁFICO COM LUCRO POR HORA DINÂMICO NO CENTRO -->
+                        <div class="pt-2 relative flex items-center justify-center">
                             <canvas id="costChart" width="100" height="100"></canvas>
+                            <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center px-2">
+                                <span id="chartHourlyProfit" class="text-sm font-extrabold">R$ 0,00/h</span>
+                                <span id="chartProfitStatus" class="text-[10px] font-bold uppercase tracking-wider mt-0.5">Lucro Baixo</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -214,17 +247,18 @@
                 <!-- GERENCIAR MÁQUINAS -->
                 <div class="space-y-6">
                     <div class="card p-5 rounded-xl space-y-4">
-                        <h2 class="text-lg font-bold text-slate-200 border-b border-slate-700 pb-2 flex items-center gap-2">
+                        <h2 id="machineFormTitle" class="text-lg font-bold text-slate-200 border-b border-slate-700 pb-2 flex items-center gap-2">
                             <i class="fas fa-plus-circle text-blue-400"></i> Cadastrar Máquina
                         </h2>
                         <form id="machineForm" onsubmit="saveMachine(event)" class="space-y-3">
+                            <input type="hidden" id="macEditId" value="">
                             <div>
                                 <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Nome da Impressora</label>
                                 <input type="text" id="macName" required class="w-full p-2.5 rounded-lg input-field" placeholder="Ex: Ender 3 V2, K1">
                             </div>
                             <div>
                                 <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Valor da Impressora (R$)</label>
-                                <input type="number" id="macPrice" step="10" required class="w-full p-2.5 rounded-lg input-field" placeholder="2000">
+                                <input type="number" id="macPrice" step="0.01" required class="w-full p-2.5 rounded-lg input-field" placeholder="2000.00">
                             </div>
                             <div>
                                 <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Consumo Médio (Watts)</label>
@@ -234,7 +268,10 @@
                                 <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Vida Útil (Horas)</label>
                                 <input type="number" id="macLifespan" step="100" required class="w-full p-2.5 rounded-lg input-field" placeholder="5000">
                             </div>
-                            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 rounded-lg transition">Salvar Impressora</button>
+                            <div class="flex gap-2">
+                                <button type="submit" id="macSubmitBtn" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 rounded-lg transition cursor-pointer">Salvar Impressora</button>
+                                <button type="button" id="macCancelBtn" onclick="resetMachineForm()" class="hidden bg-slate-700 hover:bg-slate-600 text-white font-bold py-2.5 px-4 rounded-lg transition cursor-pointer">Cancelar</button>
+                            </div>
                         </form>
                     </div>
                     <div class="card p-5 rounded-xl space-y-4">
@@ -246,10 +283,11 @@
                 <!-- GERENCIAR ESTADOS E TARIFAS -->
                 <div class="space-y-6">
                     <div class="card p-5 rounded-xl space-y-4">
-                        <h2 class="text-lg font-bold text-slate-200 border-b border-slate-700 pb-2 flex items-center gap-2">
+                        <h2 id="stateFormTitle" class="text-lg font-bold text-slate-200 border-b border-slate-700 pb-2 flex items-center gap-2">
                             <i class="fas fa-bolt text-yellow-400"></i> Cadastrar Tarifa por Estado
                         </h2>
                         <form id="stateForm" onsubmit="saveState(event)" class="space-y-3">
+                            <input type="hidden" id="stEditId" value="">
                             <div>
                                 <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Nome do Estado / Região</label>
                                 <input type="text" id="stName" required class="w-full p-2.5 rounded-lg input-field" placeholder="Ex: São Paulo (SP)">
@@ -258,7 +296,10 @@
                                 <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Tarifa de Luz (R$/kWh)</label>
                                 <input type="number" id="stRate" step="0.01" required class="w-full p-2.5 rounded-lg input-field" placeholder="0.85">
                             </div>
-                            <button type="submit" class="w-full bg-yellow-600 hover:bg-yellow-500 text-white font-bold py-2.5 rounded-lg transition">Salvar Estado</button>
+                            <div class="flex gap-2">
+                                <button type="submit" id="stSubmitBtn" class="flex-1 bg-yellow-600 hover:bg-yellow-500 text-white font-bold py-2.5 rounded-lg transition cursor-pointer">Salvar Estado</button>
+                                <button type="button" id="stCancelBtn" onclick="resetStateForm()" class="hidden bg-slate-700 hover:bg-slate-600 text-white font-bold py-2.5 px-4 rounded-lg transition cursor-pointer">Cancelar</button>
+                            </div>
                         </form>
                     </div>
                     <div class="card p-5 rounded-xl space-y-4">
@@ -271,69 +312,136 @@
     </div>
 
     <!-- FOLHA DE ORÇAMENTO -->
-    <div class="print-only max-w-2xl mx-auto p-8 bg-white text-black">
-        <div class="flex flex-col items-center justify-center border-b-2 border-black pb-6 mb-8 text-center bg-[#0f172a] p-6 rounded-2xl text-white">
-            <img src="./logo.png" class="h-28 w-auto object-contain mb-3 bg-[#0f172a] p-2 rounded-xl mix-blend-screen">
-            <h1 class="text-3xl font-black">PrintArt3D</h1>
-            <p class="text-sm font-semibold text-gray-300 mt-1">Orçamento de Impressão 3D</p>
-            <div class="flex gap-4 text-xs font-medium text-gray-300 mt-3">
+    <div class="print-only max-w-none w-full min-h-screen p-8 bg-[#0f172a] text-[#f8fafc]">
+        <div class="flex flex-col items-center justify-center border-b border-slate-700 pb-6 mb-8 text-center bg-[#0f172a] p-6">
+            <div class="bg-[#0f172a] p-2 flex flex-col items-center justify-center mb-1">
+                <img src="./logo.png" alt="PrintArt3D Logo" class="h-28 w-auto object-contain mix-blend-screen">
+            </div>
+            <h1 class="text-4xl font-extrabold tracking-tight text-white mt-1">PrintArt3D</h1>
+            <p class="text-sm font-semibold text-slate-400 mt-1">Orçamento de Impressão 3D</p>
+            <div class="flex gap-4 text-xs font-medium text-slate-400 mt-3">
                 <span>Instagram: @printart.3d_</span>
                 <span>•</span>
                 <span>Data: <span id="printDate"></span></span>
             </div>
         </div>
 
-        <div class="mb-6">
-            <h2 class="text-sm font-bold uppercase tracking-wider text-gray-500 mb-2">Descrição do Projeto / Peça:</h2>
-            <div id="printJobName" class="text-xl font-bold text-gray-900 border-2 border-dashed border-gray-300 p-4 rounded-xl bg-gray-50"></div>
-        </div>
-
-        <div class="mb-6" id="printLongDescriptionContainer">
-            <h2 class="text-sm font-bold uppercase tracking-wider text-gray-500 mb-2">Especificações e Observações:</h2>
-            <div id="printLongDescription" class="text-sm font-medium text-gray-800 border border-gray-300 p-4 rounded-xl bg-gray-50 whitespace-pre-line"></div>
-        </div>
-
-        <div class="mb-6">
-            <h2 class="text-sm font-bold uppercase tracking-wider text-gray-500 mb-2">Filamento(s) Utilizado(s):</h2>
-            <div id="printFilamentsList" class="text-base font-semibold text-gray-800 border border-gray-300 p-4 rounded-xl bg-gray-50 space-y-1">
+        <div class="max-w-2xl mx-auto space-y-6">
+            <div class="mb-6">
+                <h2 class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Descrição do Projeto / Peça:</h2>
+                <div id="printJobName" class="text-lg font-bold text-white print-card p-4 rounded-xl bg-[#1e293b] border border-slate-700"></div>
             </div>
-        </div>
 
-        <div class="border-t-2 border-b-2 border-black py-6 my-6 flex justify-between items-center bg-gray-50 px-6 rounded-xl">
-            <span class="text-base font-bold text-gray-700 uppercase tracking-wider">Valor Total do Orçamento:</span>
-            <span id="printFinalPrice" class="text-4xl font-black text-black">R$ 0,00</span>
-        </div>
+            <div class="mb-6" id="printLongDescriptionContainer">
+                <h2 class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Especificações e Observações:</h2>
+                <div id="printLongDescription" class="text-sm font-medium text-slate-200 print-card p-4 rounded-xl bg-[#1e293b] border border-slate-700 whitespace-pre-line"></div>
+            </div>
 
-        <div class="text-center text-xs text-gray-500 mt-12 pt-6 border-t border-gray-200">
-            <p>Obrigado pela preferência! Para dúvidas ou novos projetos, entre em contacto através do nosso Instagram <strong>@printart.3d_</strong>.</p>
+            <div class="mb-6">
+                <h2 class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Filamento(s) Utilizado(s):</h2>
+                <div id="printFilamentsList" class="text-sm font-semibold text-slate-200 print-card p-4 rounded-xl bg-[#1e293b] border border-slate-700 space-y-1">
+                </div>
+            </div>
+
+            <div class="mb-6" id="printExtraItemsContainer" style="display: none;">
+                <h2 class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Itens / Componentes Inclusos:</h2>
+                <div id="printExtraItemsList" class="text-sm font-semibold text-slate-200 print-card p-4 rounded-xl bg-[#1e293b] border border-slate-700 space-y-1">
+                </div>
+            </div>
+
+            <div class="border-t border-b border-slate-700 py-6 my-6 flex justify-between items-center bg-[#1e293b] px-6 rounded-xl border border-slate-700">
+                <span class="text-sm font-bold text-slate-300 uppercase tracking-wider">Valor Total do Orçamento:</span>
+                <span id="printFinalPrice" class="text-3xl font-extrabold text-emerald-400">R$ 0,00</span>
+            </div>
+
+            <div class="text-center text-xs text-slate-500 mt-12 pt-6 border-t border-slate-800">
+                <p>Obrigado pela preferência! Para dúvidas ou novos projetos, entre em contacto através do nosso Instagram <strong>@printart.3d_</strong>.</p>
+            </div>
         </div>
     </div>
 
-    <script>
-        let machines = JSON.parse(localStorage.getItem('p3d_machines')) || [
-            { id: 1, name: "Ender 3 V2", price: 1800, watts: 200, lifespan: 4000 },
-            { id: 2, name: "Bambu Lab P1S", price: 6500, watts: 350, lifespan: 6000 }
+<script>
+        let defaultMachines = [
+            { id: 1, name: "Anycubic Kobra 2", price: 2000, watts: 200, lifespan: 4000 },
+            { id: 2, name: "Anycubic Kobra 2 Neo", price: 1600, watts: 180, lifespan: 4000 },
+            { id: 3, name: "Anycubic Kobra 2 Max", price: 3500, watts: 400, lifespan: 5000 },
+            { id: 4, name: "Anycubic Kobra 3", price: 2800, watts: 250, lifespan: 4500 },
+            { id: 5, name: "Anycubic Kobra 3 V2", price: 3000, watts: 250, lifespan: 4500 },
+            { id: 6, name: "Anycubic Kobra S1", price: 3200, watts: 300, lifespan: 4500 },
+            { id: 7, name: "Anycubic Kobra 3 Max", price: 4000, watts: 450, lifespan: 5000 },
+            { id: 8, name: "Anycubic Kobra X", price: 2500, watts: 220, lifespan: 4000 },
+            { id: 9, name: "Artillery Genius Pro", price: 2200, watts: 250, lifespan: 4000 },
+            { id: 10, name: "Artillery Sidewinder X2", price: 3000, watts: 400, lifespan: 5000 },
+            { id: 11, name: "Artillery Sidewinder X3", price: 3200, watts: 350, lifespan: 5000 },
+            { id: 12, name: "Bambu Lab A1", price: 3500, watts: 150, lifespan: 5000 },
+            { id: 13, name: "Bambu Lab A1 Mini", price: 2200, watts: 120, lifespan: 4000 },
+            { id: 14, name: "Bambu Lab P1P", price: 5000, watts: 300, lifespan: 6000 },
+            { id: 15, name: "Bambu Lab P1S", price: 6500, watts: 350, lifespan: 6000 },
+            { id: 16, name: "Bambu Lab X1 Carbon", price: 10000, watts: 350, lifespan: 8000 },
+            { id: 17, name: "Creality Ender 3", price: 1200, watts: 120, lifespan: 3000 },
+            { id: 18, name: "Creality Ender 3 V2", price: 1800, watts: 200, lifespan: 4000 },
+            { id: 19, name: "Creality Ender 3 S1", price: 2400, watts: 250, lifespan: 4500 },
+            { id: 20, name: "Creality K1", price: 4500, watts: 350, lifespan: 5000 },
+            { id: 21, name: "Creality K1 Max", price: 7500, watts: 500, lifespan: 6000 },
+            { id: 22, name: "Creality K1C", price: 5200, watts: 350, lifespan: 5500 },
+            { id: 23, name: "Elegoo Neptune 3 Pro", price: 2100, watts: 200, lifespan: 4000 },
+            { id: 24, name: "Elegoo Neptune 4 Pro", price: 2600, watts: 300, lifespan: 4500 },
+            { id: 25, name: "Flashforge Adventurer 3", price: 3000, watts: 150, lifespan: 4000 },
+            { id: 26, name: "Flashforge Adventurer 4", price: 4500, watts: 200, lifespan: 5000 },
+            { id: 27, name: "Flashforge Adventurer 5M", price: 3800, watts: 350, lifespan: 4500 }
         ];
 
-        let states = JSON.parse(localStorage.getItem('p3d_states')) || [
-            { id: 1, name: "São Paulo (SP)", rate: 0.85 },
-            { id: 2, name: "Rio de Janeiro (RJ)", rate: 0.95 },
-            { id: 3, name: "Minas Gerais (MG)", rate: 0.90 }
+        let machines = JSON.parse(localStorage.getItem('p3d_machines_v6')) || defaultMachines;
+
+        let defaultStates = [
+            { id: 1, name: "Acre (AC)", rate: 1.05 },
+            { id: 2, name: "Alagoas (AL)", rate: 0.95 },
+            { id: 3, name: "Amapá (AP)", rate: 0.92 },
+            { id: 4, name: "Amazonas (AM)", rate: 1.04 },
+            { id: 5, name: "Bahia (BA)", rate: 1.02 },
+            { id: 6, name: "Ceará (CE)", rate: 0.99 },
+            { id: 7, name: "Distrito Federal (DF)", rate: 0.92 },
+            { id: 8, name: "Espírito Santo (ES)", rate: 0.88 },
+            { id: 9, name: "Goiás (GO)", rate: 0.96 },
+            { id: 10, name: "Maranhão (MA)", rate: 1.01 },
+            { id: 11, name: "Mato Grosso (MT)", rate: 0.94 },
+            { id: 12, name: "Mato Grosso do Sul (MS)", rate: 0.89 },
+            { id: 13, name: "Minas Gerais (MG)", rate: 0.95 },
+            { id: 14, name: "Pará (PA)", rate: 1.08 },
+            { id: 15, name: "Paraíba (PB)", rate: 0.91 },
+            { id: 16, name: "Paraná (PR)", rate: 0.82 },
+            { id: 17, name: "Pernambuco (PE)", rate: 0.97 },
+            { id: 18, name: "Piauí (PI)", rate: 0.96 },
+            { id: 19, name: "Rio de Janeiro (RJ)", rate: 1.05 },
+            { id: 20, name: "Rio Grande do Norte (RN)", rate: 0.98 },
+            { id: 21, name: "Rio Grande do Sul (RS)", rate: 1.10 },
+            { id: 22, name: "Rondônia (RO)", rate: 0.88 },
+            { id: 23, name: "Roraima (RR)", rate: 0.91 },
+            { id: 24, name: "Santa Catarina (SC)", rate: 0.78 },
+            { id: 25, name: "São Paulo (SP)", rate: 0.85 },
+            { id: 26, name: "Sergipe (SE)", rate: 0.93 },
+            { id: 27, name: "Tocantins (TO)", rate: 0.90 }
         ];
+
+        let states = JSON.parse(localStorage.getItem('p3d_states_v6')) || defaultStates;
 
         let filaments = [
             { id: Date.now(), type: '', price: '', grams: '' }
         ];
 
+        let extraItems = [
+            { id: Date.now() + 1, name: '', price: '', qty: 1 }
+        ];
+
         let chartInstance = null;
 
         function saveToStorage() {
-            localStorage.setItem('p3d_machines', JSON.stringify(machines));
-            localStorage.setItem('p3d_states', JSON.stringify(states));
+            localStorage.setItem('p3d_machines_v6', JSON.stringify(machines));
+            localStorage.setItem('p3d_states_v6', JSON.stringify(states));
         }
 
         function formatTimeInput(input) {
-            let val = input.value.replace(/[^0-9:]/g, ''); // Permite números e dois pontos
+            let val = input.value.replace(/[^0-9:]/g, '');
             if (val.length > 5) val = val.slice(0, 5);
             input.value = val;
             calculateCost();
@@ -343,13 +451,13 @@
             if (tab === 'calc') {
                 document.getElementById('tabCalc').classList.remove('hidden');
                 document.getElementById('tabMachines').classList.add('hidden');
-                document.getElementById('tabCalcBtn').className = "px-6 py-3 font-semibold text-blue-500 border-b-2 border-blue-500 flex items-center gap-2 transition";
-                document.getElementById('tabMachinesBtn').className = "px-6 py-3 font-semibold text-slate-400 hover:text-slate-200 border-b-2 border-transparent flex items-center gap-2 transition";
+                document.getElementById('tabCalcBtn').className = "px-6 py-3 font-semibold text-blue-500 border-b-2 border-blue-500 flex items-center gap-2 transition cursor-pointer";
+                document.getElementById('tabMachinesBtn').className = "px-6 py-3 font-semibold text-slate-400 hover:text-slate-200 border-b-2 border-transparent flex items-center gap-2 transition cursor-pointer";
             } else {
                 document.getElementById('tabCalc').classList.add('hidden');
                 document.getElementById('tabMachines').classList.remove('hidden');
-                document.getElementById('tabCalcBtn').className = "px-6 py-3 font-semibold text-slate-400 hover:text-slate-200 border-b-2 border-transparent flex items-center gap-2 transition";
-                document.getElementById('tabMachinesBtn').className = "px-6 py-3 font-semibold text-blue-500 border-b-2 border-blue-500 flex items-center gap-2 transition";
+                document.getElementById('tabCalcBtn').className = "px-6 py-3 font-semibold text-slate-400 hover:text-slate-200 border-b-2 border-transparent flex items-center gap-2 transition cursor-pointer";
+                document.getElementById('tabMachinesBtn').className = "px-6 py-3 font-semibold text-blue-500 border-b-2 border-blue-500 flex items-center gap-2 transition cursor-pointer";
             }
         }
 
@@ -363,7 +471,7 @@
                 div.innerHTML = `
                     <div class="md:col-span-5">
                         <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-0.5">Tipo / Cor</label>
-                        <input type="text" value="${fil.type}" onchange="updateFilament(${fil.id}, 'type', this.value)" class="w-full p-2 text-sm rounded input-field" placeholder="Ex: PLA Branco">
+                        <input type="text" value="${fil.type}" oninput="updateFilament(${fil.id}, 'type', this.value)" class="w-full p-2 text-sm rounded input-field" placeholder="Ex: PLA Branco">
                     </div>
                     <div class="md:col-span-3">
                         <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-0.5">Preço do Carretel (R$)</label>
@@ -375,7 +483,7 @@
                     </div>
                     <div class="md:col-span-1 flex justify-end">
                         ${filaments.length > 1 ? `
-                            <button onclick="removeFilament(${fil.id})" class="text-red-400 hover:text-red-300 p-2 text-sm">
+                            <button onclick="removeFilament(${fil.id})" class="text-red-400 hover:text-red-300 p-2 text-sm cursor-pointer">
                                 <i class="fas fa-trash"></i>
                             </button>
                         ` : ''}
@@ -400,6 +508,57 @@
             const fil = filaments.find(f => f.id === id);
             if (fil) {
                 fil[field] = field === 'type' ? value : parseFloat(value) || '';
+                calculateCost();
+            }
+        }
+
+        function renderExtraItems() {
+            const container = document.getElementById('extraItemsContainer');
+            container.innerHTML = '';
+
+            extraItems.forEach((item) => {
+                const div = document.createElement('div');
+                div.className = "grid grid-cols-1 md:grid-cols-12 gap-3 items-center bg-slate-900/50 p-3 rounded-lg border border-slate-800";
+                div.innerHTML = `
+                    <div class="md:col-span-6">
+                        <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-0.5">Item / Componente</label>
+                        <input type="text" value="${item.name}" oninput="updateExtraItem(${item.id}, 'name', this.value)" class="w-full p-2 text-sm rounded input-field" placeholder="Ex: Fita LED, Parafuso M3, Ímã">
+                    </div>
+                    <div class="md:col-span-3">
+                        <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-0.5">Valor Unitário (R$)</label>
+                        <input type="number" value="${item.price}" step="0.50" oninput="updateExtraItem(${item.id}, 'price', this.value)" class="w-full p-2 text-sm rounded input-field" placeholder="0.00">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-0.5">Qtd.</label>
+                        <input type="number" value="${item.qty}" step="1" min="1" oninput="updateExtraItem(${item.id}, 'qty', this.value)" class="w-full p-2 text-sm rounded input-field" placeholder="1">
+                    </div>
+                    <div class="md:col-span-1 flex justify-end">
+                        ${extraItems.length > 1 ? `
+                            <button onclick="removeExtraItem(${item.id})" class="text-red-400 hover:text-red-300 p-2 text-sm cursor-pointer">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        ` : ''}
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+            calculateCost();
+        }
+
+        function addExtraItemRow() {
+            extraItems.push({ id: Date.now(), name: '', price: '', qty: 1 });
+            renderExtraItems();
+        }
+
+        function removeExtraItem(id) {
+            extraItems = extraItems.filter(i => i.id !== id);
+            renderExtraItems();
+        }
+
+        function updateExtraItem(id, field, value) {
+            const item = extraItems.find(i => i.id === id);
+            if (item) {
+                item[field] = field === 'name' ? value : (parseFloat(value) || '');
                 calculateCost();
             }
         }
@@ -442,18 +601,63 @@
             const list = document.getElementById('machinesList');
             list.innerHTML = '';
             machines.forEach(m => {
-                const depRate = (m.price / m.lifespan).toFixed(2);
                 const div = document.createElement('div');
-                div.className = "flex items-center justify-between bg-slate-900/60 p-3 rounded-lg border border-slate-800";
+                div.className = "bg-slate-900/60 p-3 rounded-lg border border-slate-800 space-y-2";
                 div.innerHTML = `
-                    <div>
-                        <div class="font-bold text-white">${m.name}</div>
-                        <div class="text-xs text-slate-400">R$ ${m.price} | ${m.watts}W | ${m.lifespan}h | Dep: R$ ${depRate}/h</div>
+                    <div id="m-view-${m.id}" class="flex items-center justify-between">
+                        <div>
+                            <div class="font-bold text-white">${m.name}</div>
+                            <div class="text-xs text-slate-400">Preço: R$ ${m.price.toFixed(2)} | Consumo: ${m.watts}W | Vida Útil: ${m.lifespan}h</div>
+                        </div>
+                        <div class="flex gap-1">
+                            <button onclick="toggleInlineEditMachine(${m.id}, true)" class="text-blue-400 hover:text-blue-300 p-2 text-sm cursor-pointer" title="Editar na linha"><i class="fas fa-edit"></i></button>
+                            <button onclick="deleteMachine(${m.id})" class="text-red-400 hover:text-red-300 p-2 text-sm cursor-pointer" title="Excluir"><i class="fas fa-trash"></i></button>
+                        </div>
                     </div>
-                    <button onclick="deleteMachine(${m.id})" class="text-red-400 hover:text-red-300 p-2 text-sm"><i class="fas fa-trash"></i></button>
+                    <div id="m-edit-${m.id}" class="hidden space-y-2 pt-1 border-t border-slate-800">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                            <div>
+                                <label class="text-[10px] text-slate-400 uppercase">Nome</label>
+                                <input type="text" id="edit-m-name-${m.id}" value="${m.name}" class="w-full p-1.5 text-xs rounded input-field">
+                            </div>
+                            <div>
+                                <label class="text-[10px] text-slate-400 uppercase">Preço (R$)</label>
+                                <input type="number" step="0.01" id="edit-m-price-${m.id}" value="${m.price}" class="w-full p-1.5 text-xs rounded input-field">
+                            </div>
+                            <div>
+                                <label class="text-[10px] text-slate-400 uppercase">Consumo (W)</label>
+                                <input type="number" step="5" id="edit-m-watts-${m.id}" value="${m.watts}" class="w-full p-1.5 text-xs rounded input-field">
+                            </div>
+                            <div>
+                                <label class="text-[10px] text-slate-400 uppercase">Vida Útil (h)</label>
+                                <input type="number" step="100" id="edit-m-lifespan-${m.id}" value="${m.lifespan}" class="w-full p-1.5 text-xs rounded input-field">
+                            </div>
+                        </div>
+                        <div class="flex justify-end gap-2 pt-1">
+                            <button onclick="toggleInlineEditMachine(${m.id}, false)" class="bg-slate-700 hover:bg-slate-600 text-white text-xs px-3 py-1 rounded cursor-pointer">Cancelar</button>
+                            <button onclick="saveInlineMachine(${m.id})" class="bg-blue-600 hover:bg-blue-500 text-white text-xs px-3 py-1 rounded cursor-pointer">Salvar</button>
+                        </div>
+                    </div>
                 `;
                 list.appendChild(div);
             });
+        }
+
+        function toggleInlineEditMachine(id, show) {
+            document.getElementById(`m-view-${id}`).classList.toggle('hidden', show);
+            document.getElementById(`m-edit-${id}`).classList.toggle('hidden', !show);
+        }
+
+        function saveInlineMachine(id) {
+            const machine = machines.find(m => m.id === id);
+            if (machine) {
+                machine.name = document.getElementById(`edit-m-name-${id}`).value;
+                machine.price = parseFloat(document.getElementById(`edit-m-price-${id}`).value) || 0;
+                machine.watts = parseFloat(document.getElementById(`edit-m-watts-${id}`).value) || 0;
+                machine.lifespan = parseFloat(document.getElementById(`edit-m-lifespan-${id}`).value) || 1000;
+                saveToStorage();
+                renderMachinesAndStates();
+            }
         }
 
         function renderStatesList() {
@@ -461,16 +665,52 @@
             list.innerHTML = '';
             states.forEach(s => {
                 const div = document.createElement('div');
-                div.className = "flex items-center justify-between bg-slate-900/60 p-3 rounded-lg border border-slate-800";
+                div.className = "bg-slate-900/60 p-3 rounded-lg border border-slate-800 space-y-2";
                 div.innerHTML = `
-                    <div>
-                        <div class="font-bold text-white">${s.name}</div>
-                        <div class="text-xs text-slate-400">Tarifa: R$ ${s.rate.toFixed(2)} / kWh</div>
+                    <div id="s-view-${s.id}" class="flex items-center justify-between">
+                        <div>
+                            <div class="font-bold text-white">${s.name}</div>
+                            <div class="text-xs text-slate-400">Tarifa: R$ ${s.rate.toFixed(2)} / kWh</div>
+                        </div>
+                        <div class="flex gap-1">
+                            <button onclick="toggleInlineEditState(${s.id}, true)" class="text-blue-400 hover:text-blue-300 p-2 text-sm cursor-pointer" title="Editar na linha"><i class="fas fa-edit"></i></button>
+                            <button onclick="deleteState(${s.id})" class="text-red-400 hover:text-red-300 p-2 text-sm cursor-pointer" title="Excluir"><i class="fas fa-trash"></i></button>
+                        </div>
                     </div>
-                    <button onclick="deleteState(${s.id})" class="text-red-400 hover:text-red-300 p-2 text-sm"><i class="fas fa-trash"></i></button>
+                    <div id="s-edit-${s.id}" class="hidden space-y-2 pt-1 border-t border-slate-800">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                            <div>
+                                <label class="text-[10px] text-slate-400 uppercase">Estado / Região</label>
+                                <input type="text" id="edit-s-name-${s.id}" value="${s.name}" class="w-full p-1.5 text-xs rounded input-field">
+                            </div>
+                            <div>
+                                <label class="text-[10px] text-slate-400 uppercase">Tarifa (R$/kWh)</label>
+                                <input type="number" step="0.01" id="edit-s-rate-${s.id}" value="${s.rate}" class="w-full p-1.5 text-xs rounded input-field">
+                            </div>
+                        </div>
+                        <div class="flex justify-end gap-2 pt-1">
+                            <button onclick="toggleInlineEditState(${s.id}, false)" class="bg-slate-700 hover:bg-slate-600 text-white text-xs px-3 py-1 rounded cursor-pointer">Cancelar</button>
+                            <button onclick="saveInlineState(${s.id})" class="bg-yellow-600 hover:bg-yellow-500 text-white text-xs px-3 py-1 rounded cursor-pointer">Salvar</button>
+                        </div>
+                    </div>
                 `;
                 list.appendChild(div);
             });
+        }
+
+        function toggleInlineEditState(id, show) {
+            document.getElementById(`s-view-${id}`).classList.toggle('hidden', show);
+            document.getElementById(`s-edit-${id}`).classList.toggle('hidden', !show);
+        }
+
+        function saveInlineState(id) {
+            const state = states.find(s => s.id === id);
+            if (state) {
+                state.name = document.getElementById(`edit-s-name-${id}`).value;
+                state.rate = parseFloat(document.getElementById(`edit-s-rate-${id}`).value) || 0;
+                saveToStorage();
+                renderMachinesAndStates();
+            }
         }
 
         function saveMachine(e) {
@@ -479,6 +719,7 @@
             const price = parseFloat(document.getElementById('macPrice').value);
             const watts = parseFloat(document.getElementById('macWatts').value);
             const lifespan = parseFloat(document.getElementById('macLifespan').value);
+
             machines.push({ id: Date.now(), name, price, watts, lifespan });
             saveToStorage();
             renderMachinesAndStates();
@@ -496,6 +737,7 @@
             e.preventDefault();
             const name = document.getElementById('stName').value;
             const rate = parseFloat(document.getElementById('stRate').value);
+
             states.push({ id: Date.now(), name, rate });
             saveToStorage();
             renderMachinesAndStates();
@@ -514,6 +756,14 @@
             filaments.forEach(f => {
                 if(f.price && f.grams) {
                     totalFilamentCost += (f.price / 1000) * f.grams;
+                }
+            });
+
+            let totalExtraItemsCost = 0;
+            extraItems.forEach(item => {
+                if (item.price) {
+                    const quantity = item.qty ? parseFloat(item.qty) : 1;
+                    totalExtraItemsCost += parseFloat(item.price) * quantity;
                 }
             });
 
@@ -537,28 +787,54 @@
             const energyCostKwh = parseFloat(document.getElementById('energyCost').value) || 0;
             const energyTotal = (machine ? (machine.watts / 1000) : 0) * totalHours * energyCostKwh;
 
-            const extraCost = parseFloat(document.getElementById('extraCost').value) || 0;
-            const failMarginPercent = parseFloat(document.getElementById('failMargin').value) || 0;
-            const profitMarginPercent = parseFloat(document.getElementById('profitMargin').value) || 0;
+            const manualExtraCost = parseFloat(document.getElementById('extraCost').value) || 0;
+            const combinedExtraCost = totalExtraItemsCost + manualExtraCost;
 
-            const subtotalBase = totalFilamentCost + energyTotal + depreciationTotal + extraCost;
-            const failCost = subtotalBase * (failMarginPercent / 100);
-            const totalCost = subtotalBase + failCost;
+            const failInput = document.getElementById('failMargin').value;
+            const profitInput = document.getElementById('profitMargin').value;
+            const failMarginPercent = failInput !== '' ? parseFloat(failInput) : 10;
+            const profitMarginPercent = profitInput !== '' ? parseFloat(profitInput) : 100;
 
-            const profitValue = totalCost * (profitMarginPercent / 100);
+            const printBaseCost = totalFilamentCost + energyTotal + depreciationTotal;
+            const failCost = printBaseCost * (failMarginPercent / 100);
+            const printTotalWithRisk = printBaseCost + failCost;
+
+            const profitValue = printTotalWithRisk * (profitMarginPercent / 100);
+
+            const hourlyProfit = totalHours > 0 ? (profitValue / totalHours) : 0;
+            const profitEl = document.getElementById('chartHourlyProfit');
+            const statusEl = document.getElementById('chartProfitStatus');
+
+            profitEl.textContent = `R$ ${hourlyProfit.toFixed(2)}/h`;
+
+            if (hourlyProfit <= 5.00) {
+                profitEl.className = "text-base font-extrabold text-red-500";
+                statusEl.className = "text-[10px] font-bold uppercase tracking-wider mt-0.5 text-red-400";
+                statusEl.textContent = "Lucro Baixo";
+            } else if (hourlyProfit >= 5.01 && hourlyProfit <= 7.99) {
+                profitEl.className = "text-base font-extrabold text-orange-500";
+                statusEl.className = "text-[10px] font-bold uppercase tracking-wider mt-0.5 text-orange-400";
+                statusEl.textContent = "Lucro Moderado";
+            } else {
+                profitEl.className = "text-base font-extrabold text-emerald-400";
+                statusEl.className = "text-[10px] font-bold uppercase tracking-wider mt-0.5 text-emerald-400";
+                statusEl.textContent = "Lucro Bom";
+            }
+
+            const totalCost = printTotalWithRisk + combinedExtraCost;
             const finalPrice = totalCost + profitValue;
 
             document.getElementById('summaryFilament').textContent = `R$ ${totalFilamentCost.toFixed(2)}`;
             document.getElementById('summaryEnergy').textContent = `R$ ${energyTotal.toFixed(2)}`;
             document.getElementById('summaryDepreciation').textContent = `R$ ${depreciationTotal.toFixed(2)}`;
-            document.getElementById('summaryExtra').textContent = `R$ ${extraCost.toFixed(2)}`;
+            document.getElementById('summaryExtra').textContent = `R$ ${combinedExtraCost.toFixed(2)}`;
             document.getElementById('summaryFail').textContent = `R$ ${failCost.toFixed(2)}`;
             document.getElementById('summaryTotalCost').textContent = `R$ ${totalCost.toFixed(2)}`;
             document.getElementById('summaryProfit').textContent = `R$ ${profitValue.toFixed(2)}`;
             document.getElementById('summaryFinalPrice').textContent = `R$ ${finalPrice.toFixed(2)}`;
 
             updatePrintView(finalPrice);
-            updateChart(totalFilamentCost, energyTotal, depreciationTotal, extraCost, failCost, profitValue);
+            updateChart(totalFilamentCost, energyTotal, depreciationTotal, combinedExtraCost, failCost, profitValue);
         }
 
         function updatePrintView(finalPrice) {
@@ -591,8 +867,25 @@
             });
 
             if (!hasFilament) {
-                printFilamentsContainer.innerHTML = '<span class="text-gray-400 italic">Nenhum filamento especificado</span>';
+                printFilamentsContainer.innerHTML = '<span class="text-slate-500 italic">Nenhum filamento especificado</span>';
             }
+
+            const printExtraContainer = document.getElementById('printExtraItemsContainer');
+            const printExtraList = document.getElementById('printExtraItemsList');
+            printExtraList.innerHTML = '';
+
+            let hasExtraItem = false;
+            extraItems.forEach(item => {
+                if (item.name && item.name.trim() !== '') {
+                    hasExtraItem = true;
+                    const div = document.createElement('div');
+                    const q = item.qty ? item.qty : 1;
+                    div.textContent = `• ${item.name} (${q}x)`;
+                    printExtraList.appendChild(div);
+                }
+            });
+
+            printExtraContainer.style.display = hasExtraItem ? 'block' : 'none';
         }
 
         function updateChart(fil, energy, dep, extra, fail, profit) {
@@ -608,12 +901,12 @@
                         borderWidth: 0
                     }]
                 },
-                options: { responsive: true, plugins: { legend: { display: false } }, cutout: '70%' }
+                options: { responsive: true, plugins: { legend: { display: false } }, cutout: '72%' }
             });
         }
 
         renderMachinesAndStates();
         renderFilaments();
-    </script>
-</body>
+        renderExtraItems();
+    </script></body>
 </html>
