@@ -65,7 +65,10 @@
         .input-field { 
             background-color: var(--bg-input); 
             border: 1px solid var(--border-color); 
-            color: var(--text-primary); 
+            color: var(--text-primary);
+            height: 42px;
+            display: flex;
+            align-items: center;
         }
 
         .input-field:focus { 
@@ -196,7 +199,7 @@
                         </h2>
                         <div>
                             <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Descrição do Projeto / Peça</label>
-                            <input type="text" id="jobName" value="" oninput="calculateCost()" class="w-full p-2.5 rounded-lg input-field" placeholder="Ex: Action Figure, Engrenagem, Suporte">
+                            <input type="text" id="jobName" value="" oninput="calculateCost()" class="w-full px-3 rounded-lg input-field" placeholder="Ex: Action Figure, Engrenagem, Suporte">
                         </div>
                     </div>
 
@@ -253,20 +256,20 @@
                             <form id="machineForm" onsubmit="saveMachine(event)" class="space-y-2.5">
                                 <div>
                                     <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-0.5">Nome da Impressora</label>
-                                    <input type="text" id="macName" required class="w-full p-2 text-xs rounded input-field" placeholder="Ex: Ender 3 V2, K1">
+                                    <input type="text" id="macName" required class="w-full px-2 text-xs rounded input-field" placeholder="Ex: Ender 3 V2, K1">
                                 </div>
                                 <div class="grid grid-cols-3 gap-2">
                                     <div>
                                         <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-0.5">Preço (R$)</label>
-                                        <input type="number" id="macPrice" step="0.01" required class="w-full p-2 text-xs rounded input-field" placeholder="2000">
+                                        <input type="number" id="macPrice" step="0.01" required class="w-full px-2 text-xs rounded input-field" placeholder="2000">
                                     </div>
                                     <div>
                                         <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-0.5">Watts (W)</label>
-                                        <input type="number" id="macWatts" step="5" required class="w-full p-2 text-xs rounded input-field" placeholder="200">
+                                        <input type="number" id="macWatts" step="5" required class="w-full px-2 text-xs rounded input-field" placeholder="200">
                                     </div>
                                     <div>
                                         <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-0.5">Vida (h)</label>
-                                        <input type="number" id="macLifespan" step="100" required class="w-full p-2 text-xs rounded input-field" placeholder="5000">
+                                        <input type="number" id="macLifespan" step="100" required class="w-full px-2 text-xs rounded input-field" placeholder="5000">
                                     </div>
                                 </div>
                                 <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 rounded text-xs transition cursor-pointer">Salvar Impressora</button>
@@ -282,11 +285,11 @@
                             <form id="stateForm" onsubmit="saveState(event)" class="space-y-2.5">
                                 <div>
                                     <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-0.5">Estado / Região</label>
-                                    <input type="text" id="stName" required class="w-full p-2 text-xs rounded input-field" placeholder="Ex: São Paulo (SP)">
+                                    <input type="text" id="stName" required class="w-full px-2 text-xs rounded input-field" placeholder="Ex: São Paulo (SP)">
                                 </div>
                                 <div>
                                     <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-0.5">Tarifa de Luz (R$/kWh)</label>
-                                    <input type="number" id="stRate" step="0.01" required class="w-full p-2 text-xs rounded input-field" placeholder="0.85">
+                                    <input type="number" id="stRate" step="0.01" required class="w-full px-2 text-xs rounded input-field" placeholder="0.85">
                                 </div>
                                 <button type="submit" class="w-full bg-yellow-600 hover:bg-yellow-500 text-white font-bold py-2 rounded text-xs transition cursor-pointer">Salvar Estado</button>
                             </form>
@@ -296,7 +299,7 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Impressora Selecionada</label>
-                                <select id="machineSelect" onchange="calculateCost()" class="w-full p-2.5 rounded-lg input-field">
+                                <select id="machineSelect" onchange="calculateCost()" class="w-full px-3 rounded-lg input-field">
                                 </select>
                                 <div id="depreciationInfo" class="mt-2 text-xs text-blue-400 bg-blue-950/40 border border-blue-800/50 p-2.5 rounded-lg space-y-1">
                                     <div><i class="fas fa-chart-line mr-1"></i> Depreciação por hora: <span id="depreciationRateText" class="font-bold">R$ 0,00</span></div>
@@ -306,7 +309,7 @@
 
                             <div>
                                 <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Tempo de Impressão (HH:MM)</label>
-                                <input type="text" id="printTimeFormatted" value="" maxlength="5" oninput="formatTimeInput(this)" onchange="calculateCost()" class="w-full p-2.5 rounded-lg input-field text-center font-mono tracking-widest text-base" placeholder="00:00">
+                                <input type="text" id="printTimeFormatted" value="" maxlength="5" oninput="formatTimeInput(this)" onchange="calculateCost()" class="w-full px-3 rounded-lg input-field text-center font-mono tracking-widest text-base" placeholder="00:00">
                                 
                                 <!-- BLOCO INFORMATIVO DE GASTO DE ENERGIA -->
                                 <div id="energyInfo" class="mt-2 text-xs text-yellow-400 bg-yellow-950/40 border border-yellow-800/50 p-2.5 rounded-lg space-y-1">
@@ -319,18 +322,18 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
                             <div>
                                 <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Estado / Tarifa de Energia</label>
-                                <select id="stateSelect" onchange="updateEnergyRate()" class="w-full p-2.5 rounded-lg input-field">
+                                <select id="stateSelect" onchange="updateEnergyRate()" class="w-full px-3 rounded-lg input-field">
                                 </select>
                             </div>
                             <div>
                                 <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Custo da Energia (R$/kWh)</label>
-                                <input type="number" id="energyCost" value="" step="0.01" oninput="calculateCost()" class="w-full p-2.5 rounded-lg input-field" placeholder="0.00">
+                                <input type="number" id="energyCost" value="" step="0.01" oninput="calculateCost()" class="w-full px-3 rounded-lg input-field" placeholder="0.00">
                             </div>
                         </div>
 
                         <div class="pt-2">
                             <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Acabamento / Taxa Fixa Adicional (R$)</label>
-                            <input type="number" id="extraCost" value="" step="0.50" oninput="calculateCost()" class="w-full p-2.5 rounded-lg input-field" placeholder="0.00">
+                            <input type="number" id="extraCost" value="" step="0.50" oninput="calculateCost()" class="w-full px-3 rounded-lg input-field" placeholder="0.00">
                         </div>
                     </div>
 
@@ -343,12 +346,12 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Margem de Falhas/Perdas (%)</label>
-                                <input type="number" id="failMargin" value="" step="1" oninput="calculateCost()" class="w-full p-2.5 rounded-lg input-field" placeholder="10">
+                                <input type="number" id="failMargin" value="" step="1" oninput="calculateCost()" class="w-full px-3 rounded-lg input-field" placeholder="10">
                             </div>
 
                             <div>
                                 <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Margem de Lucro (%)</label>
-                                <input type="number" id="profitMargin" value="" step="5" oninput="calculateCost()" class="w-full p-2.5 rounded-lg input-field" placeholder="100">
+                                <input type="number" id="profitMargin" value="" step="5" oninput="calculateCost()" class="w-full px-3 rounded-lg input-field" placeholder="100">
                             </div>
                         </div>
                     </div>
@@ -360,7 +363,7 @@
                         </h2>
                         <div>
                             <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Detalhes e Especificações Técnicas</label>
-                            <textarea id="longDescription" rows="5" oninput="calculateCost()" class="w-full p-3 rounded-lg input-field text-sm" placeholder="Escreva aqui todas as observações, prazos, acabamentos ou especificações técnicas sem limite de tamanho..."></textarea>
+                            <textarea id="longDescription" rows="5" oninput="calculateCost()" class="w-full p-3 rounded-lg input-field text-sm !h-auto" placeholder="Escreva aqui todas as observações, prazos, acabamentos ou especificações técnicas sem limite de tamanho..."></textarea>
                         </div>
                     </div>
                 </div>
@@ -614,15 +617,15 @@
                 div.innerHTML = `
                     <div class="md:col-span-5">
                         <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-0.5">Tipo / Cor</label>
-                        <input type="text" value="${fil.type}" oninput="updateFilament(${fil.id}, 'type', this.value)" class="w-full p-2 text-sm rounded input-field" placeholder="Ex: PLA Branco">
+                        <input type="text" value="${fil.type}" oninput="updateFilament(${fil.id}, 'type', this.value)" class="w-full px-2 text-sm rounded input-field" placeholder="Ex: PLA Branco">
                     </div>
                     <div class="md:col-span-3">
                         <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-0.5">Preço do Carretel (R$)</label>
-                        <input type="number" value="${fil.price}" step="5" oninput="updateFilament(${fil.id}, 'price', this.value)" class="w-full p-2 text-sm rounded input-field" placeholder="0.00">
+                        <input type="number" value="${fil.price}" step="5" oninput="updateFilament(${fil.id}, 'price', this.value)" class="w-full px-2 text-sm rounded input-field" placeholder="0.00">
                     </div>
                     <div class="md:col-span-3">
                         <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-0.5">Gasto na Peça (g)</label>
-                        <input type="number" value="${fil.grams}" step="1" oninput="updateFilament(${fil.id}, 'grams', this.value)" class="w-full p-2 text-sm rounded input-field" placeholder="0">
+                        <input type="number" value="${fil.grams}" step="1" oninput="updateFilament(${fil.id}, 'grams', this.value)" class="w-full px-2 text-sm rounded input-field" placeholder="0">
                     </div>
                     <div class="md:col-span-1 flex justify-end">
                         ${filaments.length > 1 ? `
@@ -665,15 +668,15 @@
                 div.innerHTML = `
                     <div class="md:col-span-6">
                         <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-0.5">Item / Componente</label>
-                        <input type="text" value="${item.name}" oninput="updateExtraItem(${item.id}, 'name', this.value)" class="w-full p-2 text-sm rounded input-field" placeholder="Ex: Fita LED, Parafuso M3, Ímã">
+                        <input type="text" value="${item.name}" oninput="updateExtraItem(${item.id}, 'name', this.value)" class="w-full px-2 text-sm rounded input-field" placeholder="Ex: Fita LED, Parafuso M3, Ímã">
                     </div>
                     <div class="md:col-span-3">
                         <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-0.5">Valor Unitário (R$)</label>
-                        <input type="number" value="${item.price}" step="0.50" oninput="updateExtraItem(${item.id}, 'price', this.value)" class="w-full p-2 text-sm rounded input-field" placeholder="0.00">
+                        <input type="number" value="${item.price}" step="0.50" oninput="updateExtraItem(${item.id}, 'price', this.value)" class="w-full px-2 text-sm rounded input-field" placeholder="0.00">
                     </div>
                     <div class="md:col-span-2">
                         <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-0.5">Qtd.</label>
-                        <input type="number" value="${item.qty}" step="1" min="1" oninput="updateExtraItem(${item.id}, 'qty', this.value)" class="w-full p-2 text-sm rounded input-field" placeholder="1">
+                        <input type="number" value="${item.qty}" step="1" min="1" oninput="updateExtraItem(${item.id}, 'qty', this.value)" class="w-full px-2 text-sm rounded input-field" placeholder="1">
                     </div>
                     <div class="md:col-span-1 flex justify-end">
                         ${extraItems.length > 1 ? `
