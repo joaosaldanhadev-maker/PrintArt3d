@@ -108,6 +108,7 @@
         html[data-theme="light"] button.bg-blue-600,
         html[data-theme="light"] button.bg-pink-600,
         html[data-theme="light"] button.bg-emerald-600,
+        html[data-theme="light"] button.bg-green-600,
         html[data-theme="light"] button.bg-yellow-600,
         html[data-theme="light"] button.bg-slate-700 {
             color: #ffffff !important;
@@ -389,6 +390,14 @@
                     <div class="card p-5 rounded-xl space-y-4 border-2 border-blue-500/30 sticky top-4">
                         <h2 class="text-lg font-bold text-slate-200 border-b border-slate-700 pb-2">Resumo Financeiro</h2>
                         
+                        <!-- CAMPO DE QUANTIDADE DE PEÇAS (LOTE) -->
+                        <div class="bg-slate-800/50 p-3 rounded-xl border border-slate-700">
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-blue-400 mb-1 flex items-center gap-1.5">
+                                <i class="fas fa-layer-group"></i> Quantidade de Peças (Lote)
+                            </label>
+                            <input type="number" id="itemQuantity" value="1" min="1" step="1" oninput="calculateCost()" class="w-full px-3 rounded-lg input-field text-center font-bold text-base" placeholder="1">
+                        </div>
+
                         <div class="space-y-2 text-sm text-slate-300">
                             <div class="flex justify-between">
                                 <span>Custo de Filamento:</span>
@@ -411,23 +420,29 @@
                                 <span id="summaryFail" class="font-semibold">R$ 0,00</span>
                             </div>
                             <div class="flex justify-between text-base font-bold text-slate-100 pt-2 border-t border-slate-700">
-                                <span>Custo Total:</span>
+                                <span>Custo Total Unitário:</span>
                                 <span id="summaryTotalCost" class="text-red-400">R$ 0,00</span>
                             </div>
                             <div class="flex justify-between text-sm text-emerald-400">
-                                <span>Lucro Bruto:</span>
+                                <span>Lucro Bruto Unitário:</span>
                                 <span id="summaryProfit" class="font-semibold">R$ 0,00</span>
                             </div>
                         </div>
 
                         <div class="bg-blue-950/60 border border-blue-700/50 p-4 rounded-xl text-center space-y-1">
-                            <span class="text-xs font-semibold uppercase tracking-wider text-blue-300">Preço Sugerido de Venda</span>
+                            <span id="priceLabelTitle" class="text-xs font-semibold uppercase tracking-wider text-blue-300">Preço Sugerido (Unidade)</span>
                             <div id="summaryFinalPrice" class="text-3xl font-extrabold text-emerald-400">R$ 0,00</div>
+                            <div id="summaryBatchTotalContainer" class="text-xs text-slate-400 pt-1 hidden">
+                                Total do Lote (<span id="batchCountDisplay">1</span>x): <strong id="summaryBatchTotalPrice" class="text-white">R$ 0,00</strong>
+                            </div>
                         </div>
 
-                        <div class="pt-1">
+                        <div class="space-y-2 pt-1">
                             <button onclick="window.print()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2 text-base cursor-pointer">
                                 <i class="fas fa-file-invoice"></i> Gerar orçamento
+                            </button>
+                            <button onclick="enviarWhatsApp()" class="w-full bg-green-600 hover:bg-green-500 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2 text-base cursor-pointer">
+                                <i class="fab fa-whatsapp text-lg"></i> Enviar p/ WhatsApp
                             </button>
                         </div>
 
@@ -464,9 +479,15 @@
                 </div>
 
                 <div class="space-y-3">
-                    <div>
-                        <h2 class="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-1">Descrição do Projeto / Peça:</h2>
-                        <div id="printJobName" class="text-sm font-bold text-white print-card p-2.5 rounded-lg bg-[#1e293b] border border-slate-700"></div>
+                    <div class="grid grid-cols-4 gap-2">
+                        <div class="col-span-3">
+                            <h2 class="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-1">Descrição do Projeto / Peça:</h2>
+                            <div id="printJobName" class="text-sm font-bold text-white print-card p-2.5 rounded-lg bg-[#1e293b] border border-slate-700"></div>
+                        </div>
+                        <div class="col-span-1">
+                            <h2 class="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-1">Quantidade:</h2>
+                            <div id="printQuantity" class="text-sm font-bold text-white print-card p-2.5 rounded-lg bg-[#1e293b] border border-slate-700 text-center">1x</div>
+                        </div>
                     </div>
 
                     <div id="printLongDescriptionContainer">
@@ -490,7 +511,7 @@
 
             <div>
                 <div class="border-t border-b border-slate-700 py-3 my-3 flex justify-between items-center bg-[#1e293b] px-4 rounded-lg border border-slate-700">
-                    <span class="text-xs font-bold text-slate-300 uppercase tracking-wider">Valor Total do Orçamento:</span>
+                    <span id="printTotalLabel" class="text-xs font-bold text-slate-300 uppercase tracking-wider">Valor Total do Orçamento:</span>
                     <span id="printFinalPrice" class="text-2xl font-extrabold text-emerald-400">R$ 0,00</span>
                 </div>
 
@@ -983,7 +1004,11 @@
             }
 
             const totalCost = printTotalWithRisk + combinedExtraCost;
-            const finalPrice = totalCost + profitValue;
+            const finalPriceUnit = totalCost + profitValue;
+
+            // Quantidade (Lote)
+            const qtyInput = parseInt(document.getElementById('itemQuantity').value) || 1;
+            const finalPriceBatch = finalPriceUnit * qtyInput;
 
             document.getElementById('summaryFilament').textContent = `R$ ${totalFilamentCost.toFixed(2)}`;
             document.getElementById('summaryEnergy').textContent = `R$ ${energyTotal.toFixed(2)}`;
@@ -992,16 +1017,39 @@
             document.getElementById('summaryFail').textContent = `R$ ${failCost.toFixed(2)}`;
             document.getElementById('summaryTotalCost').textContent = `R$ ${totalCost.toFixed(2)}`;
             document.getElementById('summaryProfit').textContent = `R$ ${profitValue.toFixed(2)}`;
-            document.getElementById('summaryFinalPrice').textContent = `R$ ${finalPrice.toFixed(2)}`;
+            
+            // Exibição condicional dependendo se é lote ou unidade única
+            const batchContainer = document.getElementById('summaryBatchTotalContainer');
+            const priceTitle = document.getElementById('priceLabelTitle');
 
-            updatePrintView(finalPrice);
+            if (qtyInput > 1) {
+                priceTitle.textContent = `Preço Sugerido (Unidade)`;
+                document.getElementById('summaryFinalPrice').textContent = `R$ ${finalPriceUnit.toFixed(2)}`;
+                document.getElementById('batchCountDisplay').textContent = qtyInput;
+                document.getElementById('summaryBatchTotalPrice').textContent = `R$ ${finalPriceBatch.toFixed(2)}`;
+                batchContainer.classList.remove('hidden');
+            } else {
+                priceTitle.textContent = `Preço Sugerido de Venda`;
+                document.getElementById('summaryFinalPrice').textContent = `R$ ${finalPriceUnit.toFixed(2)}`;
+                batchContainer.classList.add('hidden');
+            }
+
+            updatePrintView(finalPriceUnit, finalPriceBatch, qtyInput);
             updateChart(totalFilamentCost, energyTotal, depreciationTotal, combinedExtraCost, failCost, profitValue);
         }
 
-        function updatePrintView(finalPrice) {
+        function updatePrintView(finalPriceUnit, finalPriceBatch, qty) {
             document.getElementById('printJobName').textContent = document.getElementById('jobName').value || "Impressão 3D";
+            document.getElementById('printQuantity').textContent = `${qty}x`;
             document.getElementById('printDate').textContent = new Date().toLocaleDateString('pt-BR');
-            document.getElementById('printFinalPrice').textContent = `R$ ${finalPrice.toFixed(2)}`;
+            
+            if (qty > 1) {
+                document.getElementById('printTotalLabel').textContent = `Valor Total do Lote (${qty} unidades):`;
+                document.getElementById('printFinalPrice').textContent = `R$ ${finalPriceBatch.toFixed(2)}`;
+            } else {
+                document.getElementById('printTotalLabel').textContent = `Valor Total do Orçamento:`;
+                document.getElementById('printFinalPrice').textContent = `R$ ${finalPriceUnit.toFixed(2)}`;
+            }
 
             const longDesc = document.getElementById('longDescription').value;
             const descContainer = document.getElementById('printLongDescriptionContainer');
@@ -1049,6 +1097,25 @@
             });
 
             printExtraContainer.style.display = hasExtraItem ? 'block' : 'none';
+        }
+
+        function enviarWhatsApp() {
+            const nomePeca = document.getElementById('jobName').value || "Impressão 3D";
+            const qtd = parseInt(document.getElementById('itemQuantity').value) || 1;
+            const valorTotalStr = document.getElementById('summaryFinalPrice').textContent;
+            
+            let texto = `Olá! Segue o orçamento para o projeto *${nomePeca}*`;
+            if (qtd > 1) {
+                const valorBatchStr = document.getElementById('summaryBatchTotalPrice').textContent;
+                texto += ` (Quantidade: *${qtd} unidades*):\n\n*Valor Unitário:* ${valorTotalStr}\n*Valor Total do Lote:* ${valorBatchStr}`;
+            } else {
+                texto += `:\n\n*Valor Total:* ${valorTotalStr}`;
+            }
+            
+            texto += `\n\nGerado via PrintArt3D 🚀`;
+            
+            const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(texto)}`;
+            window.open(url, '_blank');
         }
 
         function updateChart(fil, energy, dep, extra, fail, profit) {
