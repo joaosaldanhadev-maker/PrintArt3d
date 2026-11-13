@@ -1020,14 +1020,6 @@
                 }
             });
 
-            const manualExtraCost = parseFloat(document.getElementById('extraCost').value) || 0;
-            if (manualExtraCost > 0) {
-                hasExtraItem = true;
-                const div = document.createElement('div');
-                div.textContent = `• Acabamento / Taxa Fixa - R$ ${manualExtraCost.toFixed(2)}`;
-                printExtraList.appendChild(div);
-            }
-
             printExtraContainer.style.display = hasExtraItem ? 'block' : 'none';
         }
 
