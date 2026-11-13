@@ -209,11 +209,16 @@
         <div id="tabCalc" class="space-y-6">
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div class="lg:col-span-2 space-y-6">
-                    <!-- DESCRIÇÃO DO PROJETO E QUANTIDADE DE PEÇAS (PADRONIZADO) -->
+                    <!-- DESCRIÇÃO DO PROJETO E QUANTIDADE DE PEÇAS (COM ÍCONE DE QUEBRA-CABEÇA) -->
                     <div class="card p-5 rounded-xl space-y-4">
+                        <div class="border-b border-slate-700 pb-2">
+                            <h2 class="text-lg font-bold text-slate-200 flex items-center gap-2">
+                                <i class="fas fa-puzzle-piece text-blue-400"></i> Descrição do Projeto / Peça
+                            </h2>
+                        </div>
                         <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
                             <div class="md:col-span-9">
-                                <label class="block text-[10px] font-semibold uppercase text-white mb-1">Descrição do Projeto / Peça</label>
+                                <label class="block text-[10px] font-semibold uppercase text-white mb-1">Nome da Peça / Projeto</label>
                                 <input type="text" id="jobName" value="" oninput="calculateCost()" class="w-full px-3 rounded-lg input-field text-sm" placeholder="Ex: Action Figure, Engrenagem, Suporte">
                             </div>
                             <div class="md:col-span-3">
