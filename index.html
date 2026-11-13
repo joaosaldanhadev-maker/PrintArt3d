@@ -183,15 +183,6 @@
             </a>
         </header>
 
-        <div class="flex border-b border-slate-700 mb-6 justify-center">
-            <button id="tabCalcBtn" onclick="switchTab('calc')" class="px-6 py-3 font-semibold text-blue-500 border-b-2 border-blue-500 flex items-center gap-2 transition cursor-pointer">
-                <i class="fas fa-calculator"></i> Calculadora de Custos
-            </button>
-            <button id="tabMachinesBtn" onclick="switchTab('machines')" class="px-6 py-3 font-semibold text-slate-400 hover:text-slate-200 border-b-2 border-transparent flex items-center gap-2 transition cursor-pointer">
-                <i class="fas fa-print"></i> Gerenciar Máquinas e Energia por estado (Kwh)
-            </button>
-        </div>
-
         <div id="tabCalc" class="space-y-6">
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div class="lg:col-span-2 space-y-6">
@@ -242,7 +233,12 @@
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Impressora Selecionada</label>
+                                <div class="flex justify-between items-center mb-1">
+                                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Impressora Selecionada</label>
+                                    <button onclick="toggleMachinesPanel()" class="text-xs text-blue-400 hover:text-blue-300 font-medium flex items-center gap-1 cursor-pointer">
+                                        <i class="fas fa-cog"></i> Gerenciar Máquinas/Tarifas
+                                    </button>
+                                </div>
                                 <select id="machineSelect" onchange="calculateCost()" class="w-full p-2.5 rounded-lg input-field">
                                 </select>
                                 <div id="depreciationInfo" class="mt-2 text-xs text-blue-400 bg-blue-950/40 border border-blue-800/50 p-2.5 rounded-lg space-y-1">
@@ -255,6 +251,59 @@
                                 <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Tempo de Impressão (HH:MM)</label>
                                 <input type="text" id="printTimeFormatted" value="" maxlength="5" oninput="formatTimeInput(this)" onchange="calculateCost()" class="w-full p-2.5 rounded-lg input-field text-center font-mono tracking-widest text-lg" placeholder="00:00">
                                 <span class="text-[10px] text-slate-400 mt-1 block"></span>
+                            </div>
+                        </div>
+
+                        <!-- PAINEL RETRÁTIL DE GERENCIAMENTO DE MÁQUINAS E ESTADOS -->
+                        <div id="machinesManagementPanel" class="hidden pt-4 border-t border-slate-700/60 mt-4 space-y-6 animate-fadeIn">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <!-- GERENCIAR MÁQUINAS -->
+                                <div class="space-y-4 subcard p-4 rounded-xl">
+                                    <h3 class="text-sm font-bold text-slate-200 border-b border-slate-700 pb-2 flex items-center gap-2">
+                                        <i class="fas fa-print text-blue-400"></i> Cadastrar / Editar Impressoras
+                                    </h3>
+                                    <form id="machineForm" onsubmit="saveMachine(event)" class="space-y-3">
+                                        <div>
+                                            <label class="block text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-1">Nome da Impressora</label>
+                                            <input type="text" id="macName" required class="w-full p-2 text-xs rounded input-field" placeholder="Ex: Ender 3 V2, K1">
+                                        </div>
+                                        <div class="grid grid-cols-3 gap-2">
+                                            <div>
+                                                <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Preço (R$)</label>
+                                                <input type="number" id="macPrice" step="0.01" required class="w-full p-2 text-xs rounded input-field" placeholder="2000">
+                                            </div>
+                                            <div>
+                                                <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Watts (W)</label>
+                                                <input type="number" id="macWatts" step="5" required class="w-full p-2 text-xs rounded input-field" placeholder="200">
+                                            </div>
+                                            <div>
+                                                <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Vida (h)</label>
+                                                <input type="number" id="macLifespan" step="100" required class="w-full p-2 text-xs rounded input-field" placeholder="5000">
+                                            </div>
+                                        </div>
+                                        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 rounded text-xs transition cursor-pointer">Adicionar Impressora</button>
+                                    </form>
+                                    <div id="machinesList" class="space-y-2 max-h-48 overflow-y-auto pr-1"></div>
+                                </div>
+
+                                <!-- GERENCIAR ESTADOS E TARIFAS -->
+                                <div class="space-y-4 subcard p-4 rounded-xl">
+                                    <h3 class="text-sm font-bold text-slate-200 border-b border-slate-700 pb-2 flex items-center gap-2">
+                                        <i class="fas fa-bolt text-yellow-400"></i> Cadastrar / Editar Tarifas (kWh)
+                                    </h3>
+                                    <form id="stateForm" onsubmit="saveState(event)" class="space-y-3">
+                                        <div>
+                                            <label class="block text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-1">Estado / Região</label>
+                                            <input type="text" id="stName" required class="w-full p-2 text-xs rounded input-field" placeholder="Ex: São Paulo (SP)">
+                                        </div>
+                                        <div>
+                                            <label class="block text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-1">Tarifa de Luz (R$/kWh)</label>
+                                            <input type="number" id="stRate" step="0.01" required class="w-full p-2 text-xs rounded input-field" placeholder="0.85">
+                                        </div>
+                                        <button type="submit" class="w-full bg-yellow-600 hover:bg-yellow-500 text-white font-bold py-2 rounded text-xs transition cursor-pointer">Adicionar Estado</button>
+                                    </form>
+                                    <div id="statesList" class="space-y-2 max-h-48 overflow-y-auto pr-1"></div>
+                                </div>
                             </div>
                         </div>
 
@@ -366,74 +415,6 @@
                 </div>
             </div>
         </div>
-
-        <div id="tabMachines" class="hidden space-y-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- GERENCIAR MÁQUINAS -->
-                <div class="space-y-6">
-                    <div class="card p-5 rounded-xl space-y-4">
-                        <h2 id="machineFormTitle" class="text-lg font-bold text-slate-200 border-b border-slate-700 pb-2 flex items-center gap-2">
-                            <i class="fas fa-plus-circle text-blue-400"></i> Cadastrar Máquina
-                        </h2>
-                        <form id="machineForm" onsubmit="saveMachine(event)" class="space-y-3">
-                            <input type="hidden" id="macEditId" value="">
-                            <div>
-                                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Nome da Impressora</label>
-                                <input type="text" id="macName" required class="w-full p-2.5 rounded-lg input-field" placeholder="Ex: Ender 3 V2, K1">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Valor da Impressora (R$)</label>
-                                <input type="number" id="macPrice" step="0.01" required class="w-full p-2.5 rounded-lg input-field" placeholder="2000.00">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Consumo Médio (Watts)</label>
-                                <input type="number" id="macWatts" step="5" required class="w-full p-2.5 rounded-lg input-field" placeholder="200">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Vida Útil (Horas)</label>
-                                <input type="number" id="macLifespan" step="100" required class="w-full p-2.5 rounded-lg input-field" placeholder="5000">
-                            </div>
-                            <div class="flex gap-2">
-                                <button type="submit" id="macSubmitBtn" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 rounded-lg transition cursor-pointer">Salvar Impressora</button>
-                                <button type="button" id="macCancelBtn" onclick="resetMachineForm()" class="hidden bg-slate-700 hover:bg-slate-600 text-white font-bold py-2.5 px-4 rounded-lg transition cursor-pointer">Cancelar</button>
-                            </div>
-                        </form>
-                    </div>
-                    <div class="card p-5 rounded-xl space-y-4">
-                        <h2 class="text-lg font-bold text-slate-200 border-b border-slate-700 pb-2">Impressoras Cadastradas</h2>
-                        <div id="machinesList" class="space-y-3"></div>
-                    </div>
-                </div>
-
-                <!-- GERENCIAR ESTADOS E TARIFAS -->
-                <div class="space-y-6">
-                    <div class="card p-5 rounded-xl space-y-4">
-                        <h2 id="stateFormTitle" class="text-lg font-bold text-slate-200 border-b border-slate-700 pb-2 flex items-center gap-2">
-                            <i class="fas fa-bolt text-yellow-400"></i> Cadastrar Tarifa por Estado
-                        </h2>
-                        <form id="stateForm" onsubmit="saveState(event)" class="space-y-3">
-                            <input type="hidden" id="stEditId" value="">
-                            <div>
-                                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Nome do Estado / Região</label>
-                                <input type="text" id="stName" required class="w-full p-2.5 rounded-lg input-field" placeholder="Ex: São Paulo (SP)">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Tarifa de Luz (R$/kWh)</label>
-                                <input type="number" id="stRate" step="0.01" required class="w-full p-2.5 rounded-lg input-field" placeholder="0.85">
-                            </div>
-                            <div class="flex gap-2">
-                                <button type="submit" id="stSubmitBtn" class="flex-1 bg-yellow-600 hover:bg-yellow-500 text-white font-bold py-2.5 rounded-lg transition cursor-pointer">Salvar Estado</button>
-                                <button type="button" id="stCancelBtn" onclick="resetStateForm()" class="hidden bg-slate-700 hover:bg-slate-600 text-white font-bold py-2.5 px-4 rounded-lg transition cursor-pointer">Cancelar</button>
-                            </div>
-                        </form>
-                    </div>
-                    <div class="card p-5 rounded-xl space-y-4">
-                        <h2 class="text-lg font-bold text-slate-200 border-b border-slate-700 pb-2">Estados Cadastrados</h2>
-                        <div id="statesList" class="space-y-3"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 
     <!-- FOLHA DE ORÇAMENTO -->
@@ -523,6 +504,11 @@
         const savedTheme = localStorage.getItem('p3d_theme') || 'default';
         setTheme(savedTheme);
 
+        function toggleMachinesPanel() {
+            const panel = document.getElementById('machinesManagementPanel');
+            panel.classList.toggle('hidden');
+        }
+
         let defaultMachines = [
             { id: 1, name: "Anycubic Kobra 2", price: 2000, watts: 200, lifespan: 4000 },
             { id: 2, name: "Anycubic Kobra 2 Neo", price: 1600, watts: 180, lifespan: 4000 },
@@ -607,20 +593,6 @@
             if (val.length > 5) val = val.slice(0, 5);
             input.value = val;
             calculateCost();
-        }
-
-        function switchTab(tab) {
-            if (tab === 'calc') {
-                document.getElementById('tabCalc').classList.remove('hidden');
-                document.getElementById('tabMachines').classList.add('hidden');
-                document.getElementById('tabCalcBtn').className = "px-6 py-3 font-semibold text-blue-500 border-b-2 border-blue-500 flex items-center gap-2 transition cursor-pointer";
-                document.getElementById('tabMachinesBtn').className = "px-6 py-3 font-semibold text-slate-400 hover:text-slate-200 border-b-2 border-transparent flex items-center gap-2 transition cursor-pointer";
-            } else {
-                document.getElementById('tabCalc').classList.add('hidden');
-                document.getElementById('tabMachines').classList.remove('hidden');
-                document.getElementById('tabCalcBtn').className = "px-6 py-3 font-semibold text-slate-400 hover:text-slate-200 border-b-2 border-transparent flex items-center gap-2 transition cursor-pointer";
-                document.getElementById('tabMachinesBtn').className = "px-6 py-3 font-semibold text-blue-500 border-b-2 border-blue-500 flex items-center gap-2 transition cursor-pointer";
-            }
         }
 
         function renderFilaments() {
@@ -727,6 +699,7 @@
 
         function renderMachinesAndStates() {
             const select = document.getElementById('machineSelect');
+            const currentSelected = select.value;
             select.innerHTML = '<option value="" disabled selected>Selecione a sua impressora</option>';
             machines.forEach(m => {
                 const opt = document.createElement('option');
@@ -734,8 +707,10 @@
                 opt.textContent = `${m.name} (${m.watts}W)`;
                 select.appendChild(opt);
             });
+            if (currentSelected) select.value = currentSelected;
 
             const stateSelect = document.getElementById('stateSelect');
+            const currentState = stateSelect.value;
             stateSelect.innerHTML = '<option value="" disabled selected>Selecione seu estado</option>';
             states.forEach(s => {
                 const opt = document.createElement('option');
@@ -743,8 +718,7 @@
                 opt.textContent = `${s.name} (R$ ${s.rate.toFixed(2)})`;
                 stateSelect.appendChild(opt);
             });
-
-            document.getElementById('energyCost').value = '';
+            if (currentState) stateSelect.value = currentState;
 
             renderMachinesList();
             renderStatesList();
@@ -762,40 +736,30 @@
             list.innerHTML = '';
             machines.forEach(m => {
                 const div = document.createElement('div');
-                div.className = "subcard p-3 rounded-lg space-y-2";
+                div.className = "card p-2.5 rounded-lg space-y-2 text-xs";
                 div.innerHTML = `
                     <div id="m-view-${m.id}" class="flex items-center justify-between">
                         <div>
                             <div class="font-bold text-white">${m.name}</div>
-                            <div class="text-xs text-slate-400">Preço: R$ ${m.price.toFixed(2)} | Consumo: ${m.watts}W | Vida Útil: ${m.lifespan}h</div>
+                            <div class="text-[10px] text-slate-400">R$ ${m.price.toFixed(2)} | ${m.watts}W | ${m.lifespan}h</div>
                         </div>
                         <div class="flex gap-1">
-                            <button onclick="toggleInlineEditMachine(${m.id}, true)" class="text-blue-400 hover:text-blue-300 p-2 text-sm cursor-pointer" title="Editar na linha"><i class="fas fa-edit"></i></button>
-                            <button onclick="deleteMachine(${m.id})" class="text-red-400 hover:text-red-300 p-2 text-sm cursor-pointer" title="Excluir"><i class="fas fa-trash"></i></button>
+                            <button onclick="toggleInlineEditMachine(${m.id}, true)" class="text-blue-400 hover:text-blue-300 p-1 cursor-pointer" title="Editar"><i class="fas fa-edit"></i></button>
+                            <button onclick="deleteMachine(${m.id})" class="text-red-400 hover:text-red-300 p-1 cursor-pointer" title="Excluir"><i class="fas fa-trash"></i></button>
                         </div>
                     </div>
                     <div id="m-edit-${m.id}" class="hidden space-y-2 pt-1 border-t border-slate-800">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-                            <div>
-                                <label class="text-[10px] text-slate-400 uppercase">Nome</label>
-                                <input type="text" id="edit-m-name-${m.id}" value="${m.name}" class="w-full p-1.5 text-xs rounded input-field">
-                            </div>
-                            <div>
-                                <label class="text-[10px] text-slate-400 uppercase">Preço (R$)</label>
-                                <input type="number" step="0.01" id="edit-m-price-${m.id}" value="${m.price}" class="w-full p-1.5 text-xs rounded input-field">
-                            </div>
-                            <div>
-                                <label class="text-[10px] text-slate-400 uppercase">Consumo (W)</label>
-                                <input type="number" step="5" id="edit-m-watts-${m.id}" value="${m.watts}" class="w-full p-1.5 text-xs rounded input-field">
-                            </div>
-                            <div>
-                                <label class="text-[10px] text-slate-400 uppercase">Vida Útil (h)</label>
-                                <input type="number" step="100" id="edit-m-lifespan-${m.id}" value="${m.lifespan}" class="w-full p-1.5 text-xs rounded input-field">
+                        <div class="space-y-1">
+                            <input type="text" id="edit-m-name-${m.id}" value="${m.name}" class="w-full p-1 text-xs rounded input-field" placeholder="Nome">
+                            <div class="grid grid-cols-3 gap-1">
+                                <input type="number" step="0.01" id="edit-m-price-${m.id}" value="${m.price}" class="w-full p-1 text-xs rounded input-field" placeholder="Preço">
+                                <input type="number" step="5" id="edit-m-watts-${m.id}" value="${m.watts}" class="w-full p-1 text-xs rounded input-field" placeholder="Watts">
+                                <input type="number" step="100" id="edit-m-lifespan-${m.id}" value="${m.lifespan}" class="w-full p-1 text-xs rounded input-field" placeholder="Vida">
                             </div>
                         </div>
-                        <div class="flex justify-end gap-2 pt-1">
-                            <button onclick="toggleInlineEditMachine(${m.id}, false)" class="bg-slate-700 hover:bg-slate-600 text-white text-xs px-3 py-1 rounded cursor-pointer">Cancelar</button>
-                            <button onclick="saveInlineMachine(${m.id})" class="bg-blue-600 hover:bg-blue-500 text-white text-xs px-3 py-1 rounded cursor-pointer">Salvar</button>
+                        <div class="flex justify-end gap-1 pt-1">
+                            <button onclick="toggleInlineEditMachine(${m.id}, false)" class="bg-slate-700 hover:bg-slate-600 text-white px-2 py-0.5 rounded cursor-pointer">Cancelar</button>
+                            <button onclick="saveInlineMachine(${m.id})" class="bg-blue-600 hover:bg-blue-500 text-white px-2 py-0.5 rounded cursor-pointer">Salvar</button>
                         </div>
                     </div>
                 `;
@@ -825,32 +789,26 @@
             list.innerHTML = '';
             states.forEach(s => {
                 const div = document.createElement('div');
-                div.className = "subcard p-3 rounded-lg space-y-2";
+                div.className = "card p-2.5 rounded-lg space-y-2 text-xs";
                 div.innerHTML = `
                     <div id="s-view-${s.id}" class="flex items-center justify-between">
                         <div>
                             <div class="font-bold text-white">${s.name}</div>
-                            <div class="text-xs text-slate-400">Tarifa: R$ ${s.rate.toFixed(2)} / kWh</div>
+                            <div class="text-[10px] text-slate-400">R$ ${s.rate.toFixed(2)} / kWh</div>
                         </div>
                         <div class="flex gap-1">
-                            <button onclick="toggleInlineEditState(${s.id}, true)" class="text-blue-400 hover:text-blue-300 p-2 text-sm cursor-pointer" title="Editar na linha"><i class="fas fa-edit"></i></button>
-                            <button onclick="deleteState(${s.id})" class="text-red-400 hover:text-red-300 p-2 text-sm cursor-pointer" title="Excluir"><i class="fas fa-trash"></i></button>
+                            <button onclick="toggleInlineEditState(${s.id}, true)" class="text-blue-400 hover:text-blue-300 p-1 cursor-pointer" title="Editar"><i class="fas fa-edit"></i></button>
+                            <button onclick="deleteState(${s.id})" class="text-red-400 hover:text-red-300 p-1 cursor-pointer" title="Excluir"><i class="fas fa-trash"></i></button>
                         </div>
                     </div>
                     <div id="s-edit-${s.id}" class="hidden space-y-2 pt-1 border-t border-slate-800">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-                            <div>
-                                <label class="text-[10px] text-slate-400 uppercase">Estado / Região</label>
-                                <input type="text" id="edit-s-name-${s.id}" value="${s.name}" class="w-full p-1.5 text-xs rounded input-field">
-                            </div>
-                            <div>
-                                <label class="text-[10px] text-slate-400 uppercase">Tarifa (R$/kWh)</label>
-                                <input type="number" step="0.01" id="edit-s-rate-${s.id}" value="${s.rate}" class="w-full p-1.5 text-xs rounded input-field">
-                            </div>
+                        <div class="space-y-1">
+                            <input type="text" id="edit-s-name-${s.id}" value="${s.name}" class="w-full p-1 text-xs rounded input-field" placeholder="Estado">
+                            <input type="number" step="0.01" id="edit-s-rate-${s.id}" value="${s.rate}" class="w-full p-1 text-xs rounded input-field" placeholder="Tarifa">
                         </div>
-                        <div class="flex justify-end gap-2 pt-1">
-                            <button onclick="toggleInlineEditState(${s.id}, false)" class="bg-slate-700 hover:bg-slate-600 text-white text-xs px-3 py-1 rounded cursor-pointer">Cancelar</button>
-                            <button onclick="saveInlineState(${s.id})" class="bg-yellow-600 hover:bg-yellow-500 text-white text-xs px-3 py-1 rounded cursor-pointer">Salvar</button>
+                        <div class="flex justify-end gap-1 pt-1">
+                            <button onclick="toggleInlineEditState(${s.id}, false)" class="bg-slate-700 hover:bg-slate-600 text-white px-2 py-0.5 rounded cursor-pointer">Cancelar</button>
+                            <button onclick="saveInlineState(${s.id})" class="bg-yellow-600 hover:bg-yellow-500 text-white px-2 py-0.5 rounded cursor-pointer">Salvar</button>
                         </div>
                     </div>
                 `;
