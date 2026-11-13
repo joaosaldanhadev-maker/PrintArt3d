@@ -76,7 +76,6 @@
             outline: none; 
         }
 
-        /* Ajustes automáticos de contraste para o Modo Claro */
         html[data-theme="light"] .text-white { color: #0f172a !important; }
         html[data-theme="light"] .text-slate-100 { color: #0f172a !important; }
         html[data-theme="light"] .text-slate-200 { color: #1e293b !important; }
@@ -100,11 +99,9 @@
         html[data-theme="light"] .text-pink-400 { color: #db2777 !important; }
         html[data-theme="light"] .logo-img { mix-blend-mode: normal !important; }
 
-        /* Ajustes para o Modo Escuro/Preto na logo */
         html[data-theme="black"] .logo-bg-wrapper { background-color: #000000 !important; }
         html[data-theme="default"] .logo-bg-wrapper { background-color: #0f172a !important; }
 
-        /* Preserva texto branco dentro de botões coloridos no modo claro */
         html[data-theme="light"] button.bg-blue-600,
         html[data-theme="light"] button.bg-pink-600,
         html[data-theme="light"] button.bg-emerald-600,
@@ -169,10 +166,9 @@
 <body class="p-4 md:p-8">
 
     <div class="max-w-5xl mx-auto no-print">
-        <!-- CABEÇALHO PROFISSIONAL COM O BOTÃO DE TEMA EMBUTIDO NO CANTO SUPERIOR DIREITO -->
         <header class="relative flex flex-col items-center justify-center text-center gap-3 mb-6 pb-6 border-b border-slate-700">
             
-            <!-- Botão de Tema Posicionado de forma Absoluta no Canto Superior Direito -->
+            <!-- Botão de Tema no Canto Superior Direito -->
             <div class="absolute right-0 top-0">
                 <div class="relative">
                     <button onclick="toggleThemeMenu(event)" class="card px-3 py-2 text-xs font-semibold rounded-xl shadow transition flex items-center gap-2 cursor-pointer hover:border-blue-500">
@@ -195,6 +191,14 @@
                 </div>
             </div>
 
+            <!-- Botão de Novo Orçamento no Canto Superior Esquerdo -->
+            <div class="absolute left-0 top-0">
+                <button onclick="limparNovoOrcamento()" class="card px-3 py-2 text-xs font-semibold rounded-xl shadow transition flex items-center gap-2 cursor-pointer hover:border-red-500 text-red-400 hover:text-red-300">
+                    <i class="fas fa-file-circle-plus"></i>
+                    <span class="hidden md:inline">Novo Orçamento</span>
+                </button>
+            </div>
+
             <div class="logo-bg-wrapper p-2 flex flex-col items-center justify-center rounded-xl transition-colors">
                 <img src="./logo.png" alt="PrintArt3D Logo" class="logo-img h-28 w-auto object-contain mix-blend-screen">
             </div>
@@ -214,10 +218,18 @@
         <div id="tabCalc" class="space-y-6">
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div class="lg:col-span-2 space-y-6">
-                    <!-- DESCRIÇÃO DO PROJETO / PEÇA -->
-                    <div class="card p-5 rounded-xl space-y-2">
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Descrição do Projeto / Peça</label>
-                        <input type="text" id="jobName" value="" oninput="calculateCost()" class="w-full px-3 rounded-lg input-field" placeholder="Ex: Action Figure, Engrenagem, Suporte">
+                    <!-- DESCRIÇÃO DO PROJETO / PEÇA E QUANTIDADE DE PRODUTOS (LOTE) -->
+                    <div class="card p-5 rounded-xl space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+                            <div class="md:col-span-9">
+                                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Descrição do Projeto / Peça</label>
+                                <input type="text" id="jobName" value="" oninput="calculateCost()" class="w-full px-3 rounded-lg input-field" placeholder="Ex: Action Figure, Engrenagem, Suporte">
+                            </div>
+                            <div class="md:col-span-3">
+                                <label class="block text-xs font-semibold uppercase tracking-wider text-blue-400 mb-1">Quantidade</label>
+                                <input type="number" id="itemQuantity" value="1" min="1" step="1" oninput="calculateCost()" class="w-full px-3 rounded-lg input-field text-center font-bold" placeholder="1">
+                            </div>
+                        </div>
                     </div>
 
                     <!-- FILAMENTOS -->
@@ -255,7 +267,6 @@
 
                     <!-- MÁQUINA E CONSUMO -->
                     <div class="card p-5 rounded-xl space-y-4">
-                        <!-- TÍTULO DA SEÇÃO COM OS DOIS BOTÕES ALINHADOS -->
                         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-700 pb-2 gap-2">
                             <h2 class="text-lg font-bold text-slate-200 flex items-center gap-2">
                                 <i class="fas fa-cogs text-blue-400"></i> Máquina e Consumo
@@ -333,7 +344,6 @@
                                 <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Tempo de Impressão (HH:MM)</label>
                                 <input type="text" id="printTimeFormatted" value="" maxlength="5" oninput="formatTimeInput(this)" onchange="calculateCost()" class="w-full px-3 rounded-lg input-field text-center font-mono tracking-widest text-base" placeholder="00:00">
                                 
-                                <!-- BLOCO INFORMATIVO DE GASTO DE ENERGIA -->
                                 <div id="energyInfo" class="mt-2 text-xs text-yellow-400 bg-yellow-950/40 border border-yellow-800/50 p-2.5 rounded-lg space-y-1">
                                     <div><i class="fas fa-bolt mr-1"></i> Gasto de energia por hora: <span id="energyRateText" class="font-bold">R$ 0,00</span></div>
                                     <div><i class="fas fa-clock mr-1"></i> Gasto no trabalho: <span id="energyTotalText" class="font-bold text-yellow-300">R$ 0,00</span></div>
@@ -363,12 +373,12 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Margem de Falhas/Perdas (%)</label>
-                                <input type="number" id="failMargin" value="" step="1" oninput="calculateCost()" class="w-full px-3 rounded-lg input-field" placeholder="10">
+                                <input type="number" id="failMargin" value="10" step="1" oninput="calculateCost()" class="w-full px-3 rounded-lg input-field" placeholder="10">
                             </div>
 
                             <div>
                                 <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Margem de Lucro (%)</label>
-                                <input type="number" id="profitMargin" value="" step="5" oninput="calculateCost()" class="w-full px-3 rounded-lg input-field" placeholder="100">
+                                <input type="number" id="profitMargin" value="100" step="5" oninput="calculateCost()" class="w-full px-3 rounded-lg input-field" placeholder="100">
                             </div>
                         </div>
                     </div>
@@ -389,14 +399,6 @@
                 <div class="space-y-6">
                     <div class="card p-5 rounded-xl space-y-4 border-2 border-blue-500/30 sticky top-4">
                         <h2 class="text-lg font-bold text-slate-200 border-b border-slate-700 pb-2">Resumo Financeiro</h2>
-                        
-                        <!-- CAMPO DE QUANTIDADE DE PEÇAS (LOTE) -->
-                        <div class="bg-slate-800/50 p-3 rounded-xl border border-slate-700">
-                            <label class="block text-xs font-semibold uppercase tracking-wider text-blue-400 mb-1 flex items-center gap-1.5">
-                                <i class="fas fa-layer-group"></i> Quantidade de Peças (Lote)
-                            </label>
-                            <input type="number" id="itemQuantity" value="1" min="1" step="1" oninput="calculateCost()" class="w-full px-3 rounded-lg input-field text-center font-bold text-base" placeholder="1">
-                        </div>
 
                         <div class="space-y-2 text-sm text-slate-300">
                             <div class="flex justify-between">
@@ -437,16 +439,12 @@
                             </div>
                         </div>
 
-                        <div class="space-y-2 pt-1">
+                        <div class="pt-1">
                             <button onclick="window.print()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2 text-base cursor-pointer">
                                 <i class="fas fa-file-invoice"></i> Gerar orçamento
                             </button>
-                            <button onclick="enviarWhatsApp()" class="w-full bg-green-600 hover:bg-green-500 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2 text-base cursor-pointer">
-                                <i class="fab fa-whatsapp text-lg"></i> Enviar p/ WhatsApp
-                            </button>
                         </div>
 
-                        <!-- GRÁFICO COM LUCRO POR HORA DINÂMICO NO CENTRO -->
                         <div class="pt-2 relative flex items-center justify-center">
                             <canvas id="costChart" width="100" height="100"></canvas>
                             <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center px-2">
@@ -462,7 +460,6 @@
 
     <!-- FOLHA DE ORÇAMENTO -->
     <div class="print-only">
-        <!-- PÁGINA 1 -->
         <div class="print-page">
             <div>
                 <div class="flex flex-col items-center justify-center border-b border-slate-700 pb-3 mb-4 text-center">
@@ -513,6 +510,13 @@
                 <div class="border-t border-b border-slate-700 py-3 my-3 flex justify-between items-center bg-[#1e293b] px-4 rounded-lg border border-slate-700">
                     <span id="printTotalLabel" class="text-xs font-bold text-slate-300 uppercase tracking-wider">Valor Total do Orçamento:</span>
                     <span id="printFinalPrice" class="text-2xl font-extrabold text-emerald-400">R$ 0,00</span>
+                </div>
+
+                <!-- BOTÃO DO WHATSAPP DENTRO DA ÁREA DE ORÇAMENTO -->
+                <div class="mb-3">
+                    <button onclick="enviarWhatsApp()" class="w-full bg-green-600 hover:bg-green-500 text-white font-bold py-2.5 px-4 rounded-xl shadow transition flex items-center justify-center gap-2 text-sm cursor-pointer">
+                        <i class="fab fa-whatsapp text-lg"></i> Enviar Orçamento p/ WhatsApp
+                    </button>
                 </div>
 
                 <div class="text-center text-[10px] text-slate-500 pt-2 border-t border-slate-800">
@@ -629,11 +633,13 @@
 
         let states = JSON.parse(localStorage.getItem('p3d_states_v6')) || defaultStates;
 
-        let filaments = [
+        let savedStateData = JSON.parse(localStorage.getItem('p3d_current_form_data')) || null;
+
+        let filaments = savedStateData && savedStateData.filaments ? savedStateData.filaments : [
             { id: Date.now(), type: '', price: '', grams: '' }
         ];
 
-        let extraItems = [
+        let extraItems = savedStateData && savedStateData.extraItems ? savedStateData.extraItems : [
             { id: Date.now() + 1, name: '', price: '', qty: 1 }
         ];
 
@@ -642,6 +648,45 @@
         function saveToStorage() {
             localStorage.setItem('p3d_machines_v6', JSON.stringify(machines));
             localStorage.setItem('p3d_states_v6', JSON.stringify(states));
+        }
+
+        function saveFormState() {
+            const formData = {
+                jobName: document.getElementById('jobName').value,
+                printTime: document.getElementById('printTimeFormatted').value,
+                extraCost: document.getElementById('extraCost').value,
+                failMargin: document.getElementById('failMargin').value,
+                profitMargin: document.getElementById('profitMargin').value,
+                longDescription: document.getElementById('longDescription').value,
+                itemQuantity: document.getElementById('itemQuantity').value,
+                selectedMachine: document.getElementById('machineSelect').value,
+                selectedStateRate: document.getElementById('stateSelect').value,
+                energyCost: document.getElementById('energyCost').value,
+                filaments: filaments,
+                extraItems: extraItems
+            };
+            localStorage.setItem('p3d_current_form_data', JSON.stringify(formData));
+        }
+
+        function limparNovoOrcamento() {
+            if (confirm("Deseja limpar os dados atuais para iniciar um novo orçamento?")) {
+                localStorage.removeItem('p3d_current_form_data');
+                
+                document.getElementById('jobName').value = '';
+                document.getElementById('printTimeFormatted').value = '';
+                document.getElementById('extraCost').value = '';
+                document.getElementById('failMargin').value = '10';
+                document.getElementById('profitMargin').value = '100';
+                document.getElementById('longDescription').value = '';
+                document.getElementById('itemQuantity').value = '1';
+                
+                filaments = [{ id: Date.now(), type: '', price: '', grams: '' }];
+                extraItems = [{ id: Date.now() + 1, name: '', price: '', qty: 1 }];
+                
+                renderFilaments();
+                renderExtraItems();
+                calculateCost();
+            }
         }
 
         function formatTimeInput(input) {
@@ -687,11 +732,13 @@
         function addFilamentRow() {
             filaments.push({ id: Date.now(), type: '', price: '', grams: '' });
             renderFilaments();
+            saveFormState();
         }
 
         function removeFilament(id) {
             filaments = filaments.filter(f => f.id !== id);
             renderFilaments();
+            saveFormState();
         }
 
         function updateFilament(id, field, value) {
@@ -738,11 +785,13 @@
         function addExtraItemRow() {
             extraItems.push({ id: Date.now(), name: '', price: '', qty: 1 });
             renderExtraItems();
+            saveFormState();
         }
 
         function removeExtraItem(id) {
             extraItems = extraItems.filter(i => i.id !== id);
             renderExtraItems();
+            saveFormState();
         }
 
         function updateExtraItem(id, field, value) {
@@ -755,7 +804,7 @@
 
         function renderMachinesAndStates() {
             const select = document.getElementById('machineSelect');
-            const currentSelected = select.value;
+            const currentSelected = savedStateData && savedStateData.selectedMachine ? savedStateData.selectedMachine : select.value;
             select.innerHTML = '<option value="" disabled selected>Selecione a sua impressora</option>';
             machines.forEach(m => {
                 const opt = document.createElement('option');
@@ -766,7 +815,7 @@
             if (currentSelected) select.value = currentSelected;
 
             const stateSelect = document.getElementById('stateSelect');
-            const currentState = stateSelect.value;
+            const currentState = savedStateData && savedStateData.selectedStateRate ? savedStateData.selectedStateRate : stateSelect.value;
             stateSelect.innerHTML = '<option value="" disabled selected>Selecione seu estado</option>';
             states.forEach(s => {
                 const opt = document.createElement('option');
@@ -778,6 +827,18 @@
 
             renderMachinesList();
             renderStatesList();
+
+            if (savedStateData) {
+                if (savedStateData.jobName !== undefined) document.getElementById('jobName').value = savedStateData.jobName;
+                if (savedStateData.printTime !== undefined) document.getElementById('printTimeFormatted').value = savedStateData.printTime;
+                if (savedStateData.extraCost !== undefined) document.getElementById('extraCost').value = savedStateData.extraCost;
+                if (savedStateData.failMargin !== undefined) document.getElementById('failMargin').value = savedStateData.failMargin;
+                if (savedStateData.profitMargin !== undefined) document.getElementById('profitMargin').value = savedStateData.profitMargin;
+                if (savedStateData.longDescription !== undefined) document.getElementById('longDescription').value = savedStateData.longDescription;
+                if (savedStateData.itemQuantity !== undefined) document.getElementById('itemQuantity').value = savedStateData.itemQuantity;
+                if (savedStateData.energyCost !== undefined) document.getElementById('energyCost').value = savedStateData.energyCost;
+            }
+
             calculateCost();
         }
 
@@ -785,6 +846,7 @@
             const stateSelect = document.getElementById('stateSelect');
             document.getElementById('energyCost').value = stateSelect.value;
             calculateCost();
+            saveFormState();
         }
 
         function renderMachinesList() {
@@ -1006,7 +1068,6 @@
             const totalCost = printTotalWithRisk + combinedExtraCost;
             const finalPriceUnit = totalCost + profitValue;
 
-            // Quantidade (Lote)
             const qtyInput = parseInt(document.getElementById('itemQuantity').value) || 1;
             const finalPriceBatch = finalPriceUnit * qtyInput;
 
@@ -1018,7 +1079,6 @@
             document.getElementById('summaryTotalCost').textContent = `R$ ${totalCost.toFixed(2)}`;
             document.getElementById('summaryProfit').textContent = `R$ ${profitValue.toFixed(2)}`;
             
-            // Exibição condicional dependendo se é lote ou unidade única
             const batchContainer = document.getElementById('summaryBatchTotalContainer');
             const priceTitle = document.getElementById('priceLabelTitle');
 
@@ -1036,6 +1096,8 @@
 
             updatePrintView(finalPriceUnit, finalPriceBatch, qtyInput);
             updateChart(totalFilamentCost, energyTotal, depreciationTotal, combinedExtraCost, failCost, profitValue);
+            
+            saveFormState();
         }
 
         function updatePrintView(finalPriceUnit, finalPriceBatch, qty) {
