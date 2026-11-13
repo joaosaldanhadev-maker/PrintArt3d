@@ -7,6 +7,8 @@
     <title>Calculadora PrintArt3D</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Biblioteca html2canvas para capturar o orçamento como imagem -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -439,9 +441,13 @@
                             </div>
                         </div>
 
-                        <div class="pt-1">
+                        <div class="space-y-2 pt-1">
                             <button onclick="window.print()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2 text-base cursor-pointer">
                                 <i class="fas fa-file-invoice"></i> Gerar folha de orçamento
+                            </button>
+                            <!-- BOTÃO DO WHATSAPP RECOLOCADO ABAIXO DO ORÇAMENTO -->
+                            <button onclick="enviarWhatsAppImagem()" class="w-full bg-green-600 hover:bg-green-500 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2 text-base cursor-pointer">
+                                <i class="fab fa-whatsapp text-lg"></i> Enviar Orçamento p/ WhatsApp
                             </button>
                         </div>
 
@@ -458,8 +464,8 @@
         </div>
     </div>
 
-    <!-- FOLHA DE ORÇAMENTO (VISÍVEL APENAS NA HORA DE SALVAR EM PDF/IMPRIMIR) -->
-    <div class="print-only">
+    <!-- FOLHA DE ORÇAMENTO (CAPTURADA PARA IMAGEM / PDF) -->
+    <div class="print-only" id="printArea">
         <div class="print-page">
             <div>
                 <div class="flex flex-col items-center justify-center border-b border-slate-700 pb-3 mb-4 text-center">
@@ -510,16 +516,6 @@
                 <div class="border-t border-b border-slate-700 py-3 my-3 flex justify-between items-center bg-[#1e293b] px-4 rounded-lg border border-slate-700">
                     <span id="printTotalLabel" class="text-xs font-bold text-slate-300 uppercase tracking-wider">Valor Total do Orçamento:</span>
                     <span id="printFinalPrice" class="text-2xl font-extrabold text-emerald-400">R$ 0,00</span>
-                </div>
-
-                <!-- BOTÕES FUNCIONAIS DENTRO DA FOLHA DE ORÇAMENTO -->
-                <div class="grid grid-cols-2 gap-2 mb-3 no-print">
-                    <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 px-3 rounded-xl shadow transition flex items-center justify-center gap-1.5 text-xs cursor-pointer">
-                        <i class="fas fa-file-pdf"></i> Salvar em PDF
-                    </button>
-                    <button onclick="enviarWhatsApp()" class="bg-green-600 hover:bg-green-500 text-white font-bold py-2.5 px-3 rounded-xl shadow transition flex items-center justify-center gap-1.5 text-xs cursor-pointer">
-                        <i class="fab fa-whatsapp text-sm"></i> Enviar p/ WhatsApp
-                    </button>
                 </div>
 
                 <div class="text-center text-[10px] text-slate-500 pt-2 border-t border-slate-800">
@@ -636,13 +632,11 @@
 
         let states = JSON.parse(localStorage.getItem('p3d_states_v6')) || defaultStates;
 
-        let savedStateData = JSON.parse(localStorage.getItem('p3d_current_form_data')) || null;
-
-        let filaments = savedStateData && savedStateData.filaments ? savedStateData.filaments : [
+        let filaments = [
             { id: Date.now(), type: '', price: '', grams: '' }
         ];
 
-        let extraItems = savedStateData && savedStateData.extraItems ? savedStateData.extraItems : [
+        let extraItems = [
             { id: Date.now() + 1, name: '', price: '', qty: 1 }
         ];
 
@@ -653,28 +647,8 @@
             localStorage.setItem('p3d_states_v6', JSON.stringify(states));
         }
 
-        function saveFormState() {
-            const formData = {
-                jobName: document.getElementById('jobName').value,
-                printTime: document.getElementById('printTimeFormatted').value,
-                extraCost: document.getElementById('extraCost').value,
-                failMargin: document.getElementById('failMargin').value,
-                profitMargin: document.getElementById('profitMargin').value,
-                longDescription: document.getElementById('longDescription').value,
-                itemQuantity: document.getElementById('itemQuantity').value,
-                selectedMachine: document.getElementById('machineSelect').value,
-                selectedStateRate: document.getElementById('stateSelect').value,
-                energyCost: document.getElementById('energyCost').value,
-                filaments: filaments,
-                extraItems: extraItems
-            };
-            localStorage.setItem('p3d_current_form_data', JSON.stringify(formData));
-        }
-
         function limparNovoOrcamento() {
             if (confirm("Deseja limpar os dados atuais para iniciar um novo orçamento?")) {
-                localStorage.removeItem('p3d_current_form_data');
-                
                 document.getElementById('jobName').value = '';
                 document.getElementById('printTimeFormatted').value = '';
                 document.getElementById('extraCost').value = '';
@@ -735,13 +709,11 @@
         function addFilamentRow() {
             filaments.push({ id: Date.now(), type: '', price: '', grams: '' });
             renderFilaments();
-            saveFormState();
         }
 
         function removeFilament(id) {
             filaments = filaments.filter(f => f.id !== id);
             renderFilaments();
-            saveFormState();
         }
 
         function updateFilament(id, field, value) {
@@ -788,13 +760,11 @@
         function addExtraItemRow() {
             extraItems.push({ id: Date.now(), name: '', price: '', qty: 1 });
             renderExtraItems();
-            saveFormState();
         }
 
         function removeExtraItem(id) {
             extraItems = extraItems.filter(i => i.id !== id);
             renderExtraItems();
-            saveFormState();
         }
 
         function updateExtraItem(id, field, value) {
@@ -807,7 +777,7 @@
 
         function renderMachinesAndStates() {
             const select = document.getElementById('machineSelect');
-            const currentSelected = savedStateData && savedStateData.selectedMachine ? savedStateData.selectedMachine : select.value;
+            const currentSelected = select.value;
             select.innerHTML = '<option value="" disabled selected>Selecione a sua impressora</option>';
             machines.forEach(m => {
                 const opt = document.createElement('option');
@@ -818,7 +788,7 @@
             if (currentSelected) select.value = currentSelected;
 
             const stateSelect = document.getElementById('stateSelect');
-            const currentState = savedStateData && savedStateData.selectedStateRate ? savedStateData.selectedStateRate : stateSelect.value;
+            const currentState = stateSelect.value;
             stateSelect.innerHTML = '<option value="" disabled selected>Selecione seu estado</option>';
             states.forEach(s => {
                 const opt = document.createElement('option');
@@ -830,18 +800,6 @@
 
             renderMachinesList();
             renderStatesList();
-
-            if (savedStateData) {
-                if (savedStateData.jobName !== undefined) document.getElementById('jobName').value = savedStateData.jobName;
-                if (savedStateData.printTime !== undefined) document.getElementById('printTimeFormatted').value = savedStateData.printTime;
-                if (savedStateData.extraCost !== undefined) document.getElementById('extraCost').value = savedStateData.extraCost;
-                if (savedStateData.failMargin !== undefined) document.getElementById('failMargin').value = savedStateData.failMargin;
-                if (savedStateData.profitMargin !== undefined) document.getElementById('profitMargin').value = savedStateData.profitMargin;
-                if (savedStateData.longDescription !== undefined) document.getElementById('longDescription').value = savedStateData.longDescription;
-                if (savedStateData.itemQuantity !== undefined) document.getElementById('itemQuantity').value = savedStateData.itemQuantity;
-                if (savedStateData.energyCost !== undefined) document.getElementById('energyCost').value = savedStateData.energyCost;
-            }
-
             calculateCost();
         }
 
@@ -849,7 +807,6 @@
             const stateSelect = document.getElementById('stateSelect');
             document.getElementById('energyCost').value = stateSelect.value;
             calculateCost();
-            saveFormState();
         }
 
         function renderMachinesList() {
@@ -1099,8 +1056,6 @@
 
             updatePrintView(finalPriceUnit, finalPriceBatch, qtyInput);
             updateChart(totalFilamentCost, energyTotal, depreciationTotal, combinedExtraCost, failCost, profitValue);
-            
-            saveFormState();
         }
 
         function updatePrintView(finalPriceUnit, finalPriceBatch, qty) {
@@ -1164,22 +1119,44 @@
             printExtraContainer.style.display = hasExtraItem ? 'block' : 'none';
         }
 
-        function enviarWhatsApp() {
-            const nomePeca = document.getElementById('jobName').value || "Impressão 3D";
-            const qtd = parseInt(document.getElementById('itemQuantity').value) || 1;
-            const valorTotalStr = document.getElementById('printFinalPrice').textContent;
+        // Função para converter a folha de orçamento em imagem e enviar para o WhatsApp
+        function enviarWhatsAppImagem() {
+            const printArea = document.getElementById('printArea');
             
-            let texto = `Olá! Segue o orçamento para o projeto *${nomePeca}*`;
-            if (qtd > 1) {
-                texto += ` (Quantidade: *${qtd} unidades*):\n\n*Valor Total do Lote:* ${valorTotalStr}`;
-            } else {
-                texto += `:\n\n*Valor Total:* ${valorTotalStr}`;
-            }
-            
-            texto += `\n\nGerado via PrintArt3D 🚀`;
-            
-            const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(texto)}`;
-            window.open(url, '_blank');
+            // Torna temporariamente visível para capturar a imagem exata
+            printArea.style.display = 'block';
+            printArea.style.position = 'absolute';
+            printArea.style.left = '-9999px';
+
+            html2canvas(printArea.querySelector('.print-page'), {
+                scale: 2,
+                useCORS: true,
+                backgroundColor: '#0f172a'
+            }).then(canvas => {
+                printArea.style.display = 'none'; // Esconde de volta
+
+                canvas.toBlob(blob => {
+                    const file = new File([blob], "orcamento-printart3d.png", { type: "image/png" });
+                    
+                    const nomePeca = document.getElementById('jobName').value || "Impressão 3D";
+                    const valorTotalStr = document.getElementById('printFinalPrice').textContent;
+                    const texto = `Olá! Segue o orçamento para o projeto *${nomePeca}*.\n*Valor Total:* ${valorTotalStr}\n\nGerado via PrintArt3D 🚀`;
+
+                    // Verifica se o navegador suporta compartilhamento nativo de arquivos (Celulares com app do WhatsApp)
+                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                        navigator.share({
+                            files: [file],
+                            title: 'Orçamento PrintArt3D',
+                            text: texto,
+                        }).catch(() => {});
+                    } else {
+                        // Fallback para computadores ou navegadores que não suportam arquivos diretos
+                        const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(texto)}`;
+                        window.open(url, '_blank');
+                        alert("Imagem gerada! Se estiver no PC, você pode colar a imagem ou salvar o PDF para enviar.");
+                    }
+                }, 'image/png');
+            });
         }
 
         function updateChart(fil, energy, dep, extra, fail, profit) {
