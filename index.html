@@ -414,8 +414,8 @@
                                 <span id="summaryExtra" class="font-semibold text-slate-100">R$ 0,00</span>
                             </div>
                             <div class="flex justify-between text-xs text-blue-400 pl-2">
-                                <span>↳ Insumos com Adicional (10%):</span>
-                                <span id="summaryExtraWithMargin" class="font-semibold">R$ 0,00</span>
+                                <span>↳ Adicional de 10% sobre o insumo:</span>
+                                <span id="summaryExtraMarginOnly" class="font-semibold">R$ 0,00</span>
                             </div>
                             <div class="flex justify-between text-amber-400 pt-1 border-t border-slate-800">
                                 <span>Risco/Falhas:</span>
@@ -944,6 +944,7 @@
             });
 
             const extraItemsWithMargin = totalExtraItemsCost * 1.10;
+            const extraMarginOnly = totalExtraItemsCost * 0.10; // Apenas o valor do adicional (10%)
 
             const timeVal = document.getElementById('printTimeFormatted').value || "00:00";
             const parts = timeVal.split(':');
@@ -1013,7 +1014,7 @@
             document.getElementById('summaryEnergy').textContent = `R$ ${energyTotal.toFixed(2)}`;
             document.getElementById('summaryDepreciation').textContent = `R$ ${depreciationTotal.toFixed(2)}`;
             document.getElementById('summaryExtra').textContent = `R$ ${totalExtraItemsCost.toFixed(2)}`;
-            document.getElementById('summaryExtraWithMargin').textContent = `R$ ${extraItemsWithMargin.toFixed(2)}`;
+            document.getElementById('summaryExtraMarginOnly').textContent = `R$ ${extraMarginOnly.toFixed(2)}`;
             document.getElementById('summaryFail').textContent = `R$ ${failCost.toFixed(2)}`;
             document.getElementById('summaryTotalCost').textContent = `R$ ${totalCost.toFixed(2)}`;
             document.getElementById('summaryProfit').textContent = `R$ ${profitValue.toFixed(2)}`;
