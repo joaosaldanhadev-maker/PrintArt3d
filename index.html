@@ -938,7 +938,7 @@
                 }
             });
 
-            // Aplica 10% de margem somente em cima dos itens extras (sem afetar filamentos, máquina ou lucro geral da peça)
+            // Aplica 10% de margem internamente apenas para o cálculo do valor final total
             const extraItemsWithMargin = totalExtraItemsCost * 1.10;
 
             const timeVal = document.getElementById('printTimeFormatted').value || "00:00";
@@ -1084,7 +1084,7 @@
                     const div = document.createElement('div');
                     const q = item.qty ? item.qty : 1;
                     const unitPrice = item.price ? parseFloat(item.price) : 0;
-                    const totalItemPrice = unitPrice * q * 1.10; // Exibe o valor já com os 10% na listagem do orçamento
+                    const totalItemPrice = unitPrice * q; // Mantém o valor original na impressão do orçamento
                     div.textContent = `• ${item.name} (${q}x) - R$ ${totalItemPrice.toFixed(2)}`;
                     printExtraList.appendChild(div);
                 }
