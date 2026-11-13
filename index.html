@@ -87,8 +87,11 @@
         html[data-theme="light"] .bg-slate-800:hover { background-color: #cbd5e1 !important; }
         html[data-theme="light"] .bg-blue-950\/40,
         html[data-theme="light"] .bg-blue-950\/60 { background-color: #eff6ff !important; border-color: #bfdbfe !important; }
+        html[data-theme="light"] .bg-yellow-950\/40 { background-color: #fefce8 !important; border-color: #fef08a !important; }
         html[data-theme="light"] .text-blue-300 { color: #1d4ed8 !important; }
         html[data-theme="light"] .text-blue-400 { color: #2563eb !important; }
+        html[data-theme="light"] .text-yellow-300 { color: #a16207 !important; }
+        html[data-theme="light"] .text-yellow-400 { color: #ca8a04 !important; }
         html[data-theme="light"] .text-emerald-400 { color: #059669 !important; }
         html[data-theme="light"] .text-amber-400 { color: #d97706 !important; }
         html[data-theme="light"] .text-pink-400 { color: #db2777 !important; }
@@ -304,7 +307,12 @@
                             <div>
                                 <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Tempo de Impressão (HH:MM)</label>
                                 <input type="text" id="printTimeFormatted" value="" maxlength="5" oninput="formatTimeInput(this)" onchange="calculateCost()" class="w-full p-2.5 rounded-lg input-field text-center font-mono tracking-widest text-lg" placeholder="00:00">
-                                <span class="text-[10px] text-slate-400 mt-1 block"></span>
+                                
+                                <!-- BLOCO INFORMATIVO DE GASTO DE ENERGIA -->
+                                <div id="energyInfo" class="mt-2 text-xs text-yellow-400 bg-yellow-950/40 border border-yellow-800/50 p-2.5 rounded-lg space-y-1">
+                                    <div><i class="fas fa-bolt mr-1"></i> Gasto de energia por hora: <span id="energyRateText" class="font-bold">R$ 0,00</span></div>
+                                    <div><i class="fas fa-clock mr-1"></i> Gasto no trabalho: <span id="energyTotalText" class="font-bold text-yellow-300">R$ 0,00</span></div>
+                                </div>
                             </div>
                         </div>
 
@@ -908,7 +916,11 @@
             document.getElementById('depreciationTotalText').textContent = `R$ ${depreciationTotal.toFixed(2)}`;
 
             const energyCostKwh = parseFloat(document.getElementById('energyCost').value) || 0;
-            const energyTotal = (machine ? (machine.watts / 1000) : 0) * totalHours * energyCostKwh;
+            const energyRatePerHour = machine ? (machine.watts / 1000) * energyCostKwh : 0;
+            const energyTotal = energyRatePerHour * totalHours;
+
+            document.getElementById('energyRateText').textContent = `R$ ${energyRatePerHour.toFixed(2)}`;
+            document.getElementById('energyTotalText').textContent = `R$ ${energyTotal.toFixed(2)}`;
 
             const manualExtraCost = parseFloat(document.getElementById('extraCost').value) || 0;
             const combinedExtraCost = totalExtraItemsCost + manualExtraCost;
