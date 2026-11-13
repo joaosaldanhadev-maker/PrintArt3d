@@ -9,10 +9,99 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { background-color: #0f172a; color: #f8fafc; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        .card { background-color: #1e293b; border: 1px solid #334155; }
-        .input-field { background-color: #0f172a; border: 1px solid #334155; color: #f8fafc; }
-        .input-field:focus { border-color: #3b82f6; outline: none; }
+        :root {
+            --bg-main: #0f172a;
+            --bg-card: #1e293b;
+            --bg-input: #0f172a;
+            --bg-subcard: rgba(15, 23, 42, 0.55);
+            --border-color: #334155;
+            --border-subtle: #1e293b;
+            --text-primary: #f8fafc;
+            --text-secondary: #e2e8f0;
+            --text-muted: #94a3b8;
+        }
+
+        html[data-theme="black"] {
+            --bg-main: #000000;
+            --bg-card: #0a0a0a;
+            --bg-input: #000000;
+            --bg-subcard: #121212;
+            --border-color: #262626;
+            --border-subtle: #171717;
+            --text-primary: #ffffff;
+            --text-secondary: #e5e5e5;
+            --text-muted: #a3a3a3;
+        }
+
+        html[data-theme="light"] {
+            --bg-main: #f1f5f9;
+            --bg-card: #ffffff;
+            --bg-input: #f8fafc;
+            --bg-subcard: #f8fafc;
+            --border-color: #cbd5e1;
+            --border-subtle: #e2e8f0;
+            --text-primary: #0f172a;
+            --text-secondary: #1e293b;
+            --text-muted: #475569;
+        }
+
+        body { 
+            background-color: var(--bg-main); 
+            color: var(--text-primary); 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        .card { 
+            background-color: var(--bg-card); 
+            border: 1px solid var(--border-color); 
+        }
+
+        .subcard {
+            background-color: var(--bg-subcard);
+            border: 1px solid var(--border-subtle);
+        }
+
+        .input-field { 
+            background-color: var(--bg-input); 
+            border: 1px solid var(--border-color); 
+            color: var(--text-primary); 
+        }
+
+        .input-field:focus { 
+            border-color: #3b82f6; 
+            outline: none; 
+        }
+
+        /* Ajustes automáticos de contraste para o Modo Claro */
+        html[data-theme="light"] .text-white { color: #0f172a !important; }
+        html[data-theme="light"] .text-slate-100 { color: #0f172a !important; }
+        html[data-theme="light"] .text-slate-200 { color: #1e293b !important; }
+        html[data-theme="light"] .text-slate-300 { color: #334155 !important; }
+        html[data-theme="light"] .text-slate-400 { color: #475569 !important; }
+        html[data-theme="light"] .border-slate-700 { border-color: #cbd5e1 !important; }
+        html[data-theme="light"] .border-slate-800 { border-color: #e2e8f0 !important; }
+        html[data-theme="light"] .bg-\[\#0f172a\] { background-color: transparent !important; }
+        html[data-theme="light"] .bg-slate-800 { background-color: #e2e8f0 !important; }
+        html[data-theme="light"] .bg-slate-800:hover { background-color: #cbd5e1 !important; }
+        html[data-theme="light"] .bg-blue-950\/40,
+        html[data-theme="light"] .bg-blue-950\/60 { background-color: #eff6ff !important; border-color: #bfdbfe !important; }
+        html[data-theme="light"] .text-blue-300 { color: #1d4ed8 !important; }
+        html[data-theme="light"] .text-blue-400 { color: #2563eb !important; }
+        html[data-theme="light"] .text-emerald-400 { color: #059669 !important; }
+        html[data-theme="light"] .text-amber-400 { color: #d97706 !important; }
+        html[data-theme="light"] .text-pink-400 { color: #db2777 !important; }
+        html[data-theme="light"] .logo-img { mix-blend-mode: normal !important; }
+
+        /* Preserva texto branco dentro de botões coloridos no modo claro */
+        html[data-theme="light"] button.bg-blue-600,
+        html[data-theme="light"] button.bg-pink-600,
+        html[data-theme="light"] button.bg-emerald-600,
+        html[data-theme="light"] button.bg-yellow-600,
+        html[data-theme="light"] button.bg-slate-700 {
+            color: #ffffff !important;
+        }
+
         input[type=number]::-webkit-inner-spin-button, 
         input[type=number]::-webkit-outer-spin-button { 
             -webkit-appearance: none; 
@@ -34,6 +123,12 @@
             .no-print { display: none !important; }
             .print-only { display: block !important; width: 100% !important; min-height: 100vh !important; margin: 0 !important; padding: 2rem !important; }
             .print-card { background-color: #1e293b !important; border: 1px solid #334155 !important; color: #f8fafc !important; }
+            .print-only .text-white { color: #ffffff !important; }
+            .print-only .text-slate-200 { color: #e2e8f0 !important; }
+            .print-only .text-slate-300 { color: #cbd5e1 !important; }
+            .print-only .text-slate-400 { color: #94a3b8 !important; }
+            .print-only .text-emerald-400 { color: #34d399 !important; }
+            .print-only .logo-img { mix-blend-mode: screen !important; }
         }
         .print-only { display: none; }
     </style>
@@ -41,9 +136,34 @@
 <body class="p-4 md:p-8">
 
     <div class="max-w-5xl mx-auto no-print">
-        <header class="flex flex-col items-center justify-center text-center gap-3 mb-6 pb-6 border-b border-slate-700">
+        <!-- CABEÇALHO PROFISSIONAL COM O BOTÃO DE TEMA EMBUTIDO NO CANTO SUPERIOR DIREITO -->
+        <header class="relative flex flex-col items-center justify-center text-center gap-3 mb-6 pb-6 border-b border-slate-700">
+            
+            <!-- Botão de Tema Posicionado de forma Absoluta no Canto Superior Direito -->
+            <div class="absolute right-0 top-0">
+                <div class="relative">
+                    <button onclick="toggleThemeMenu(event)" class="card px-3 py-2 text-xs font-semibold rounded-xl shadow transition flex items-center gap-2 cursor-pointer hover:border-blue-500">
+                        <i id="themeMenuIcon" class="fas fa-palette text-blue-400"></i>
+                        <span id="themeMenuLabel" class="hidden md:inline">Tema</span>
+                        <i class="fas fa-chevron-down text-[10px] text-slate-400"></i>
+                    </button>
+                    
+                    <div id="themeDropdown" class="hidden absolute right-0 top-11 w-40 card rounded-xl shadow-xl p-1.5 z-50 space-y-1 border border-slate-700 text-left">
+                        <button type="button" onclick="setTheme('default')" class="w-full text-left px-3 py-2 text-xs font-semibold rounded-lg transition flex items-center gap-2 cursor-pointer hover:bg-blue-600 hover:text-white">
+                            <i class="fas fa-palette w-4"></i> Padrão
+                        </button>
+                        <button type="button" onclick="setTheme('black')" class="w-full text-left px-3 py-2 text-xs font-semibold rounded-lg transition flex items-center gap-2 cursor-pointer hover:bg-blue-600 hover:text-white">
+                            <i class="fas fa-moon w-4"></i> Escuro
+                        </button>
+                        <button type="button" onclick="setTheme('light')" class="w-full text-left px-3 py-2 text-xs font-semibold rounded-lg transition flex items-center gap-2 cursor-pointer hover:bg-blue-600 hover:text-white">
+                            <i class="fas fa-sun w-4"></i> Claro
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <div class="bg-[#0f172a] p-2 flex flex-col items-center justify-center">
-                <img src="./logo.png" alt="PrintArt3D Logo" class="h-28 w-auto object-contain mix-blend-screen">
+                <img src="./logo.png" alt="PrintArt3D Logo" class="logo-img h-28 w-auto object-contain mix-blend-screen">
             </div>
             
             <div>
@@ -315,7 +435,7 @@
     <div class="print-only max-w-none w-full min-h-screen p-8 bg-[#0f172a] text-[#f8fafc]">
         <div class="flex flex-col items-center justify-center border-b border-slate-700 pb-6 mb-8 text-center bg-[#0f172a] p-6">
             <div class="bg-[#0f172a] p-2 flex flex-col items-center justify-center mb-1">
-                <img src="./logo.png" alt="PrintArt3D Logo" class="h-28 w-auto object-contain mix-blend-screen">
+                <img src="./logo.png" alt="PrintArt3D Logo" class="logo-img h-28 w-auto object-contain mix-blend-screen">
             </div>
             <h1 class="text-4xl font-extrabold tracking-tight text-white mt-1">PrintArt3D</h1>
             <p class="text-sm font-semibold text-slate-400 mt-1">Orçamento de Impressão 3D</p>
@@ -361,9 +481,45 @@
     </div>
 
 <script>
+        function toggleThemeMenu(event) {
+            event.stopPropagation();
+            const dropdown = document.getElementById('themeDropdown');
+            dropdown.classList.toggle('hidden');
+        }
+
+        window.addEventListener('click', function() {
+            const dropdown = document.getElementById('themeDropdown');
+            if (dropdown && !dropdown.classList.contains('hidden')) {
+                dropdown.classList.add('hidden');
+            }
+        });
+
+        function setTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem('p3d_theme', theme);
+
+            const label = document.getElementById('themeMenuLabel');
+            const icon = document.getElementById('themeMenuIcon');
+
+            if (theme === 'default') {
+                label.textContent = 'Padrão';
+                icon.className = 'fas fa-palette text-blue-400';
+            } else if (theme === 'black') {
+                label.textContent = 'Escuro';
+                icon.className = 'fas fa-moon text-blue-400';
+            } else if (theme === 'light') {
+                label.textContent = 'Claro';
+                icon.className = 'fas fa-sun text-yellow-500';
+            }
+
+            document.getElementById('themeDropdown').classList.add('hidden');
+        }
+
+        const savedTheme = localStorage.getItem('p3d_theme') || 'default';
+        setTheme(savedTheme);
+
         let defaultMachines = [
-            { id: 1, name: "Selecione sua impressora"},
-           <!-- { id: 1, name: "Anycubic Kobra 2", price: 2000, watts: 200, lifespan: 4000 },-->
+            { id: 1, name: "Anycubic Kobra 2", price: 2000, watts: 200, lifespan: 4000 },
             { id: 2, name: "Anycubic Kobra 2 Neo", price: 1600, watts: 180, lifespan: 4000 },
             { id: 3, name: "Anycubic Kobra 2 Max", price: 3500, watts: 400, lifespan: 5000 },
             { id: 4, name: "Anycubic Kobra 3", price: 2800, watts: 250, lifespan: 4500 },
@@ -468,7 +624,7 @@
 
             filaments.forEach((fil) => {
                 const div = document.createElement('div');
-                div.className = "grid grid-cols-1 md:grid-cols-12 gap-3 items-center bg-slate-900/50 p-3 rounded-lg border border-slate-800";
+                div.className = "grid grid-cols-1 md:grid-cols-12 gap-3 items-center subcard p-3 rounded-lg";
                 div.innerHTML = `
                     <div class="md:col-span-5">
                         <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-0.5">Tipo / Cor</label>
@@ -519,7 +675,7 @@
 
             extraItems.forEach((item) => {
                 const div = document.createElement('div');
-                div.className = "grid grid-cols-1 md:grid-cols-12 gap-3 items-center bg-slate-900/50 p-3 rounded-lg border border-slate-800";
+                div.className = "grid grid-cols-1 md:grid-cols-12 gap-3 items-center subcard p-3 rounded-lg";
                 div.innerHTML = `
                     <div class="md:col-span-6">
                         <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-0.5">Item / Componente</label>
@@ -566,7 +722,7 @@
 
         function renderMachinesAndStates() {
             const select = document.getElementById('machineSelect');
-            select.innerHTML = '';
+            select.innerHTML = '<option value="" disabled selected>Selecione a sua impressora</option>';
             machines.forEach(m => {
                 const opt = document.createElement('option');
                 opt.value = m.id;
@@ -575,7 +731,7 @@
             });
 
             const stateSelect = document.getElementById('stateSelect');
-            stateSelect.innerHTML = '';
+            stateSelect.innerHTML = '<option value="" disabled selected>Selecione seu estado</option>';
             states.forEach(s => {
                 const opt = document.createElement('option');
                 opt.value = s.rate;
@@ -583,9 +739,7 @@
                 stateSelect.appendChild(opt);
             });
 
-            if(states.length > 0) {
-                document.getElementById('energyCost').value = states[0].rate;
-            }
+            document.getElementById('energyCost').value = '';
 
             renderMachinesList();
             renderStatesList();
@@ -603,7 +757,7 @@
             list.innerHTML = '';
             machines.forEach(m => {
                 const div = document.createElement('div');
-                div.className = "bg-slate-900/60 p-3 rounded-lg border border-slate-800 space-y-2";
+                div.className = "subcard p-3 rounded-lg space-y-2";
                 div.innerHTML = `
                     <div id="m-view-${m.id}" class="flex items-center justify-between">
                         <div>
@@ -666,7 +820,7 @@
             list.innerHTML = '';
             states.forEach(s => {
                 const div = document.createElement('div');
-                div.className = "bg-slate-900/60 p-3 rounded-lg border border-slate-800 space-y-2";
+                div.className = "subcard p-3 rounded-lg space-y-2";
                 div.innerHTML = `
                     <div id="s-view-${s.id}" class="flex items-center justify-between">
                         <div>
@@ -772,8 +926,8 @@
             const parts = timeVal.split(':');
             const totalHours = (parseInt(parts[0]) || 0) + ((parseInt(parts[1]) || 0) / 60);
 
-            const selectedMachineId = parseInt(document.getElementById('machineSelect').value);
-            const machine = machines.find(m => m.id === selectedMachineId) || machines[0];
+            const selectedMachineId = document.getElementById('machineSelect').value;
+            const machine = machines.find(m => m.id == selectedMachineId);
 
             let depreciationRate = 0;
             let depreciationTotal = 0;
@@ -909,5 +1063,6 @@
         renderMachinesAndStates();
         renderFilaments();
         renderExtraItems();
-    </script></body>
+    </script>
+</body>
 </html>
