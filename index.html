@@ -225,68 +225,69 @@
                         <div id="extraItemsContainer" class="space-y-3"></div>
                     </div>
 
-                    <!-- MÁQUINA E CONSUMO (COM BOTÃO DE GERENCIAR INTEGRADO NO TÍTULO) -->
+                    <!-- MÁQUINA E CONSUMO -->
                     <div class="card p-5 rounded-xl space-y-4">
-                        <div class="flex justify-between items-center border-b border-slate-700 pb-2">
+                        <!-- TÍTULO DA SEÇÃO COM OS DOIS BOTÕES ALINHADOS -->
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-700 pb-2 gap-2">
                             <h2 class="text-lg font-bold text-slate-200 flex items-center gap-2">
                                 <i class="fas fa-cogs text-blue-400"></i> Máquina e Consumo
                             </h2>
-                            <button onclick="toggleMachinesPanel()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs px-3 py-1.5 rounded-lg border border-slate-700 flex items-center gap-1.5 transition cursor-pointer">
-                                <i class="fas fa-sliders text-blue-400"></i> Gerenciar Máquinas e Tarifas
-                            </button>
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <button onclick="togglePanel('machinesManagementPanel')" class="bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs px-2.5 py-1.5 rounded-lg border border-slate-700 flex items-center gap-1.5 transition cursor-pointer">
+                                    <i class="fas fa-print text-blue-400"></i> Gerenciar Máquinas
+                                </button>
+                                <button onclick="togglePanel('statesManagementPanel')" class="bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs px-2.5 py-1.5 rounded-lg border border-slate-700 flex items-center gap-1.5 transition cursor-pointer">
+                                    <i class="fas fa-bolt text-yellow-400"></i> Gerenciar Energia
+                                </button>
+                            </div>
                         </div>
 
-                        <!-- PAINEL RETRÁTIL DE GERENCIAMENTO DE MÁQUINAS E ESTADOS -->
-                        <div id="machinesManagementPanel" class="hidden pb-2 border-b border-slate-700/60 mb-4 space-y-6 animate-fadeIn">
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <!-- GERENCIAR MÁQUINAS -->
-                                <div class="space-y-3 subcard p-4 rounded-xl">
-                                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-300 border-b border-slate-700 pb-2 flex items-center gap-2">
-                                        <i class="fas fa-print text-blue-400"></i> Cadastrar Impressoras
-                                    </h3>
-                                    <form id="machineForm" onsubmit="saveMachine(event)" class="space-y-2.5">
-                                        <div>
-                                            <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-0.5">Nome da Impressora</label>
-                                            <input type="text" id="macName" required class="w-full p-2 text-xs rounded input-field" placeholder="Ex: Ender 3 V2, K1">
-                                        </div>
-                                        <div class="grid grid-cols-3 gap-2">
-                                            <div>
-                                                <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-0.5">Preço (R$)</label>
-                                                <input type="number" id="macPrice" step="0.01" required class="w-full p-2 text-xs rounded input-field" placeholder="2000">
-                                            </div>
-                                            <div>
-                                                <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-0.5">Watts (W)</label>
-                                                <input type="number" id="macWatts" step="5" required class="w-full p-2 text-xs rounded input-field" placeholder="200">
-                                            </div>
-                                            <div>
-                                                <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-0.5">Vida (h)</label>
-                                                <input type="number" id="macLifespan" step="100" required class="w-full p-2 text-xs rounded input-field" placeholder="5000">
-                                            </div>
-                                        </div>
-                                        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 rounded text-xs transition cursor-pointer">Salvar Impressora</button>
-                                    </form>
-                                    <div id="machinesList" class="space-y-2 max-h-40 overflow-y-auto pr-1"></div>
+                        <!-- PAINEL RETRÁTIL DE MÁQUINAS -->
+                        <div id="machinesManagementPanel" class="hidden subcard p-4 rounded-xl space-y-4 my-2 animate-fadeIn">
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-300 border-b border-slate-700 pb-2 flex items-center gap-2">
+                                <i class="fas fa-print text-blue-400"></i> Cadastrar / Gerenciar Impressoras
+                            </h3>
+                            <form id="machineForm" onsubmit="saveMachine(event)" class="space-y-2.5">
+                                <div>
+                                    <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-0.5">Nome da Impressora</label>
+                                    <input type="text" id="macName" required class="w-full p-2 text-xs rounded input-field" placeholder="Ex: Ender 3 V2, K1">
                                 </div>
+                                <div class="grid grid-cols-3 gap-2">
+                                    <div>
+                                        <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-0.5">Preço (R$)</label>
+                                        <input type="number" id="macPrice" step="0.01" required class="w-full p-2 text-xs rounded input-field" placeholder="2000">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-0.5">Watts (W)</label>
+                                        <input type="number" id="macWatts" step="5" required class="w-full p-2 text-xs rounded input-field" placeholder="200">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-0.5">Vida (h)</label>
+                                        <input type="number" id="macLifespan" step="100" required class="w-full p-2 text-xs rounded input-field" placeholder="5000">
+                                    </div>
+                                </div>
+                                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 rounded text-xs transition cursor-pointer">Salvar Impressora</button>
+                            </form>
+                            <div id="machinesList" class="space-y-2 max-h-40 overflow-y-auto pr-1"></div>
+                        </div>
 
-                                <!-- GERENCIAR ESTADOS E TARIFAS -->
-                                <div class="space-y-3 subcard p-4 rounded-xl">
-                                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-300 border-b border-slate-700 pb-2 flex items-center gap-2">
-                                        <i class="fas fa-bolt text-yellow-400"></i> Cadastrar Tarifas (kWh)
-                                    </h3>
-                                    <form id="stateForm" onsubmit="saveState(event)" class="space-y-2.5">
-                                        <div>
-                                            <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-0.5">Estado / Região</label>
-                                            <input type="text" id="stName" required class="w-full p-2 text-xs rounded input-field" placeholder="Ex: São Paulo (SP)">
-                                        </div>
-                                        <div>
-                                            <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-0.5">Tarifa de Luz (R$/kWh)</label>
-                                            <input type="number" id="stRate" step="0.01" required class="w-full p-2 text-xs rounded input-field" placeholder="0.85">
-                                        </div>
-                                        <button type="submit" class="w-full bg-yellow-600 hover:bg-yellow-500 text-white font-bold py-2 rounded text-xs transition cursor-pointer">Salvar Estado</button>
-                                    </form>
-                                    <div id="statesList" class="space-y-2 max-h-40 overflow-y-auto pr-1"></div>
+                        <!-- PAINEL RETRÁTIL DE ENERGIA -->
+                        <div id="statesManagementPanel" class="hidden subcard p-4 rounded-xl space-y-4 my-2 animate-fadeIn">
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-300 border-b border-slate-700 pb-2 flex items-center gap-2">
+                                <i class="fas fa-bolt text-yellow-400"></i> Cadastrar / Gerenciar Tarifas (kWh)
+                            </h3>
+                            <form id="stateForm" onsubmit="saveState(event)" class="space-y-2.5">
+                                <div>
+                                    <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-0.5">Estado / Região</label>
+                                    <input type="text" id="stName" required class="w-full p-2 text-xs rounded input-field" placeholder="Ex: São Paulo (SP)">
                                 </div>
-                            </div>
+                                <div>
+                                    <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-0.5">Tarifa de Luz (R$/kWh)</label>
+                                    <input type="number" id="stRate" step="0.01" required class="w-full p-2 text-xs rounded input-field" placeholder="0.85">
+                                </div>
+                                <button type="submit" class="w-full bg-yellow-600 hover:bg-yellow-500 text-white font-bold py-2 rounded text-xs transition cursor-pointer">Salvar Estado</button>
+                            </form>
+                            <div id="statesList" class="space-y-2 max-h-40 overflow-y-auto pr-1"></div>
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -504,8 +505,8 @@
         const savedTheme = localStorage.getItem('p3d_theme') || 'default';
         setTheme(savedTheme);
 
-        function toggleMachinesPanel() {
-            const panel = document.getElementById('machinesManagementPanel');
+        function togglePanel(panelId) {
+            const panel = document.getElementById(panelId);
             panel.classList.toggle('hidden');
         }
 
@@ -781,6 +782,7 @@
                 machine.lifespan = parseFloat(document.getElementById(`edit-m-lifespan-${id}`).value) || 1000;
                 saveToStorage();
                 renderMachinesAndStates();
+                document.getElementById('machinesManagementPanel').classList.add('hidden');
             }
         }
 
@@ -828,6 +830,7 @@
                 state.rate = parseFloat(document.getElementById(`edit-s-rate-${id}`).value) || 0;
                 saveToStorage();
                 renderMachinesAndStates();
+                document.getElementById('statesManagementPanel').classList.add('hidden');
             }
         }
 
@@ -842,6 +845,7 @@
             saveToStorage();
             renderMachinesAndStates();
             document.getElementById('machineForm').reset();
+            document.getElementById('machinesManagementPanel').classList.add('hidden');
         }
 
         function deleteMachine(id) {
@@ -860,6 +864,7 @@
             saveToStorage();
             renderMachinesAndStates();
             document.getElementById('stateForm').reset();
+            document.getElementById('statesManagementPanel').classList.add('hidden');
         }
 
         function deleteState(id) {
