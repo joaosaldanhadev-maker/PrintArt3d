@@ -413,6 +413,10 @@
                                 <span>Insumos / Itens Extras:</span>
                                 <span id="summaryExtra" class="font-semibold text-slate-100">R$ 0,00</span>
                             </div>
+                            <div class="flex justify-between text-xs text-blue-400 pl-2">
+                                <span>↳ Insumos com Adicional (10%):</span>
+                                <span id="summaryExtraWithMargin" class="font-semibold">R$ 0,00</span>
+                            </div>
                             <div class="flex justify-between text-amber-400 pt-1 border-t border-slate-800">
                                 <span>Risco/Falhas:</span>
                                 <span id="summaryFail" class="font-semibold">R$ 0,00</span>
@@ -1008,7 +1012,8 @@
             document.getElementById('summaryFilament').textContent = `R$ ${totalFilamentCost.toFixed(2)}`;
             document.getElementById('summaryEnergy').textContent = `R$ ${energyTotal.toFixed(2)}`;
             document.getElementById('summaryDepreciation').textContent = `R$ ${depreciationTotal.toFixed(2)}`;
-            document.getElementById('summaryExtra').textContent = `R$ ${combinedExtraCost.toFixed(2)}`;
+            document.getElementById('summaryExtra').textContent = `R$ ${totalExtraItemsCost.toFixed(2)}`;
+            document.getElementById('summaryExtraWithMargin').textContent = `R$ ${extraItemsWithMargin.toFixed(2)}`;
             document.getElementById('summaryFail').textContent = `R$ ${failCost.toFixed(2)}`;
             document.getElementById('summaryTotalCost').textContent = `R$ ${totalCost.toFixed(2)}`;
             document.getElementById('summaryProfit').textContent = `R$ ${profitValue.toFixed(2)}`;
