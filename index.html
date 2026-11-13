@@ -81,7 +81,8 @@
         html[data-theme="light"] .text-slate-400 { color: #475569 !important; }
         html[data-theme="light"] .border-slate-700 { border-color: #cbd5e1 !important; }
         html[data-theme="light"] .border-slate-800 { border-color: #e2e8f0 !important; }
-        html[data-theme="light"] .bg-\[\#0f172a\] { background-color: transparent !important; }
+        html[data-theme="light"] .bg-\[\#0f172a\],
+        html[data-theme="light"] .logo-bg-wrapper { background-color: transparent !important; }
         html[data-theme="light"] .bg-slate-800 { background-color: #e2e8f0 !important; }
         html[data-theme="light"] .bg-slate-800:hover { background-color: #cbd5e1 !important; }
         html[data-theme="light"] .bg-blue-950\/40,
@@ -92,6 +93,10 @@
         html[data-theme="light"] .text-amber-400 { color: #d97706 !important; }
         html[data-theme="light"] .text-pink-400 { color: #db2777 !important; }
         html[data-theme="light"] .logo-img { mix-blend-mode: normal !important; }
+
+        /* Ajustes para o Modo Escuro/Preto na logo */
+        html[data-theme="black"] .logo-bg-wrapper { background-color: #000000 !important; }
+        html[data-theme="default"] .logo-bg-wrapper { background-color: #0f172a !important; }
 
         /* Preserva texto branco dentro de botões coloridos no modo claro */
         html[data-theme="light"] button.bg-blue-600,
@@ -162,7 +167,7 @@
                 </div>
             </div>
 
-            <div class="bg-[#0f172a] p-2 flex flex-col items-center justify-center">
+            <div class="logo-bg-wrapper p-2 flex flex-col items-center justify-center rounded-xl transition-colors">
                 <img src="./logo.png" alt="PrintArt3D Logo" class="logo-img h-28 w-auto object-contain mix-blend-screen">
             </div>
             
