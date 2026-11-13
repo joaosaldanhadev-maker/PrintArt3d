@@ -7,8 +7,6 @@
     <title>Calculadora PrintArt3D</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Biblioteca html2canvas para capturar o orçamento como imagem -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -107,7 +105,6 @@
         html[data-theme="light"] button.bg-blue-600,
         html[data-theme="light"] button.bg-pink-600,
         html[data-theme="light"] button.bg-emerald-600,
-        html[data-theme="light"] button.bg-green-600,
         html[data-theme="light"] button.bg-yellow-600,
         html[data-theme="light"] button.bg-slate-700 {
             color: #ffffff !important;
@@ -191,14 +188,6 @@
                         </button>
                     </div>
                 </div>
-            </div>
-
-            <!-- Botão de Novo Orçamento no Canto Superior Esquerdo -->
-            <div class="absolute left-0 top-0">
-                <button onclick="limparNovoOrcamento()" class="card px-3 py-2 text-xs font-semibold rounded-xl shadow transition flex items-center gap-2 cursor-pointer hover:border-red-500 text-red-400 hover:text-red-300">
-                    <i class="fas fa-file-circle-plus"></i>
-                    <span class="hidden md:inline">Novo Orçamento</span>
-                </button>
             </div>
 
             <div class="logo-bg-wrapper p-2 flex flex-col items-center justify-center rounded-xl transition-colors">
@@ -441,13 +430,9 @@
                             </div>
                         </div>
 
-                        <div class="space-y-2 pt-1">
+                        <div class="pt-1">
                             <button onclick="window.print()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2 text-base cursor-pointer">
-                                <i class="fas fa-file-invoice"></i> Gerar folha de orçamento
-                            </button>
-                            <!-- BOTÃO DO WHATSAPP RECOLOCADO ABAIXO DO ORÇAMENTO -->
-                            <button onclick="enviarWhatsAppImagem()" class="w-full bg-green-600 hover:bg-green-500 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2 text-base cursor-pointer">
-                                <i class="fab fa-whatsapp text-lg"></i> Enviar Orçamento p/ WhatsApp
+                                <i class="fas fa-file-invoice"></i> Gerar orçamento
                             </button>
                         </div>
 
@@ -464,8 +449,8 @@
         </div>
     </div>
 
-    <!-- FOLHA DE ORÇAMENTO (CAPTURADA PARA IMAGEM / PDF) -->
-    <div class="print-only" id="printArea">
+    <!-- FOLHA DE ORÇAMENTO (IMPRESSÃO / PDF) -->
+    <div class="print-only">
         <div class="print-page">
             <div>
                 <div class="flex flex-col items-center justify-center border-b border-slate-700 pb-3 mb-4 text-center">
@@ -645,25 +630,6 @@
         function saveToStorage() {
             localStorage.setItem('p3d_machines_v6', JSON.stringify(machines));
             localStorage.setItem('p3d_states_v6', JSON.stringify(states));
-        }
-
-        function limparNovoOrcamento() {
-            if (confirm("Deseja limpar os dados atuais para iniciar um novo orçamento?")) {
-                document.getElementById('jobName').value = '';
-                document.getElementById('printTimeFormatted').value = '';
-                document.getElementById('extraCost').value = '';
-                document.getElementById('failMargin').value = '10';
-                document.getElementById('profitMargin').value = '100';
-                document.getElementById('longDescription').value = '';
-                document.getElementById('itemQuantity').value = '1';
-                
-                filaments = [{ id: Date.now(), type: '', price: '', grams: '' }];
-                extraItems = [{ id: Date.now() + 1, name: '', price: '', qty: 1 }];
-                
-                renderFilaments();
-                renderExtraItems();
-                calculateCost();
-            }
         }
 
         function formatTimeInput(input) {
@@ -1117,46 +1083,6 @@
             });
 
             printExtraContainer.style.display = hasExtraItem ? 'block' : 'none';
-        }
-
-        // Função para converter a folha de orçamento em imagem e enviar para o WhatsApp
-        function enviarWhatsAppImagem() {
-            const printArea = document.getElementById('printArea');
-            
-            // Torna temporariamente visível para capturar a imagem exata
-            printArea.style.display = 'block';
-            printArea.style.position = 'absolute';
-            printArea.style.left = '-9999px';
-
-            html2canvas(printArea.querySelector('.print-page'), {
-                scale: 2,
-                useCORS: true,
-                backgroundColor: '#0f172a'
-            }).then(canvas => {
-                printArea.style.display = 'none'; // Esconde de volta
-
-                canvas.toBlob(blob => {
-                    const file = new File([blob], "orcamento-printart3d.png", { type: "image/png" });
-                    
-                    const nomePeca = document.getElementById('jobName').value || "Impressão 3D";
-                    const valorTotalStr = document.getElementById('printFinalPrice').textContent;
-                    const texto = `Olá! Segue o orçamento para o projeto *${nomePeca}*.\n*Valor Total:* ${valorTotalStr}\n\nGerado via PrintArt3D 🚀`;
-
-                    // Verifica se o navegador suporta compartilhamento nativo de arquivos (Celulares com app do WhatsApp)
-                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                        navigator.share({
-                            files: [file],
-                            title: 'Orçamento PrintArt3D',
-                            text: texto,
-                        }).catch(() => {});
-                    } else {
-                        // Fallback para computadores ou navegadores que não suportam arquivos diretos
-                        const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(texto)}`;
-                        window.open(url, '_blank');
-                        alert("Imagem gerada! Se estiver no PC, você pode colar a imagem ou salvar o PDF para enviar.");
-                    }
-                }, 'image/png');
-            });
         }
 
         function updateChart(fil, energy, dep, extra, fail, profit) {
